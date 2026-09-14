@@ -38,6 +38,7 @@ def resolve(url,source):
         path=str(candidate.relative_to(ROOT))
     if path==".":return "/"
     if path.startswith(ZH) and not (ROOT/path).is_file():path=path[len(ZH):]
+    if path=="lessons/4-ComputerVision/11-ObjectDetection/lab/PASCAL VOC":return "https://host.robots.ox.ac.uk/pascal/VOC/"
     path=fixes.get(path,path)
     if path in files:return route(path)+fragment
     p=ROOT/path
@@ -104,3 +105,5 @@ class Links(HTMLParser):
                 if not target.exists():raise ValueError("Missing local asset: "+value)
 for page in OUT.rglob("*.html"):Links().feed(page.read_text())
 print(json.dumps({"pages":len(list(OUT.rglob("*.html"))),"local_assets":len(assets),"upstream_links_to_review":len(issues),"commit":REV}))
+
+print(json.dumps({'source_links_to_review':issues},ensure_ascii=False))

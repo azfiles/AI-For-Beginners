@@ -18,6 +18,7 @@ jobs:
             site
             lessons
             examples
+            data
             images
             translated_images/zh-CN
             translations/zh-CN
