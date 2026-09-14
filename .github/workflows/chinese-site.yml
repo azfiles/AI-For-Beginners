@@ -1,0 +1,41 @@
+name: Build Chinese learning site
+on:
+  push:
+    branches: [main]
+    paths: ['website/**', 'site/**', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            website
+            site
+            lessons
+            examples
+            images
+            translated_images/zh-CN
+            translations/zh-CN
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install static rendering dependencies
+        run: |
+          python -m pip install markdown==3.10.3
+          npm install --prefix /tmp/course-math --ignore-scripts katex@0.16.22
+          mkdir -p website/vendor/katex
+          cp -R /tmp/course-math/node_modules/katex/dist/. website/vendor/katex/
+          cp /tmp/course-math/node_modules/katex/LICENSE website/vendor/katex/LICENSE
+      - name: Build and verify local page links
+        run: python website/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chinese-learning-site
+          path: site-dist/
+          retention-days: 30

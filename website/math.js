@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",()=>{if(window.renderMathInElement)renderMathInElement(document.querySelector("main"),{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\[",right:"\\]",display:true},{left:"$",right:"$",display:false},{left:"\\(",right:"\\)",display:false}],throwOnError:false});});
