@@ -1,0 +1,28 @@
+name: Check original dataset downloads
+on:
+  push:
+    paths: ['.github/workflows/resource-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: |
+          python - <<'PY'
+          import urllib.request, json
+          urls={
+              'PH2':'https://www.dropbox.com/s/k88qukc20ljnbuo/PH2Dataset.rar?dl=1',
+              'NER':'https://www.kaggle.com/api/v1/datasets/download/abhinavwalia95/entity-annotated-corpus',
+              'Body':'https://www.kaggle.com/api/v1/datasets/download/tapakah68/segmentation-full-body-mads-dataset',
+          }
+          for name,url in urls.items():
+              try:
+                  with urllib.request.urlopen(url,timeout=30) as response:
+                      prefix=response.read(16)
+                      print(json.dumps({'resource':name,'status':response.status,'type':response.headers.get('Content-Type'),'size':response.headers.get('Content-Length'),'prefix':prefix.hex()}),flush=True)
+              except Exception as error:
+                  print(json.dumps({'resource':name,'error':str(error)}),flush=True)
+          PY

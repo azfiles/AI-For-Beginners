@@ -7,27 +7,26 @@ p.add_argument("--root");p.add_argument("--progress");p.add_argument("--one");p.
 p.add_argument("--timeout",type=int,default=120);a=p.parse_args()
 if a.root:ROOT=Path(a.root)
 if a.one:
-    from IPython.terminal.interactiveshell import TerminalInteractiveShell
-    path=ROOT/a.one;notebook=json.loads(path.read_text())
-    os.chdir(path.parent);sys.path.insert(0,str(path.parent))
-    shell=TerminalInteractiveShell.instance();output=io.StringIO();count=0;index=-1
+    import nbformat
+    from nbclient import NotebookClient
+    path=ROOT/a.one;notebook=nbformat.read(path,as_version=4)
+    count=0;index=-1
+    def record(cell, cell_index, **kwargs):
+        global count,index
+        index=cell_index
+        if cell.cell_type=="code" and cell.source.strip():count+=1
+        if a.progress:Path(a.progress).write_text(json.dumps({"executed_cells":count,"cell_index":index}))
     try:
-        with contextlib.redirect_stdout(output),contextlib.redirect_stderr(output):
-            for index,cell in enumerate(notebook["cells"]):
-                if cell["cell_type"]!="code":continue
-                code="".join(cell.get("source",[]))
-                if not code.strip():continue
-                result=shell.run_cell(code,store_history=True)
-                if result.error_before_exec:raise result.error_before_exec
-                if result.error_in_exec:raise result.error_in_exec
-                count+=1
-                if a.progress:Path(a.progress).write_text(json.dumps({"executed_cells":count,"cell_index":index}))
-        if "❌ Error:" in output.getvalue():
-            raise RuntimeError("Notebook printed a runtime error: "+output.getvalue()[-2000:])
+        client=NotebookClient(notebook,timeout=None,allow_errors=False,
+            resources={"metadata":{"path":str(path.parent)}},on_cell_executed=record)
+        client.execute()
+        errors=[o for c in notebook.cells for o in c.get("outputs",[]) if o.output_type=="error"]
+        if errors:raise RuntimeError(str(errors[0].get("evalue","Cell output error")))
         result={"status":"passed","executed_cells":count}
     except Exception as e:
-        result={"status":"manual_input" if isinstance(e,EOFError) else "failed",
-                "executed_cells":count,"cell_index":index,"error":str(e),
+        error=str(e)
+        result={"status":"manual_input" if "StdinNotImplementedError" in error or "EOF" in error else "failed",
+                "executed_cells":count,"cell_index":index,"error":error[-5000:],
                 "traceback":traceback.format_exc()[-4000:]}
     print(json.dumps(result));sys.exit(0)
 paths=sorted(list((ROOT/"lessons").rglob("*.ipynb"))+list((ROOT/"examples").rglob("*.ipynb")))

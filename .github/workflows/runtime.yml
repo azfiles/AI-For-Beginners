@@ -32,7 +32,7 @@ jobs:
                   with urllib.request.urlopen(request, timeout=2) as response:
                       assert response.status == 200
                   break
-              except urllib.error.URLError:
+              except (urllib.error.URLError, ConnectionResetError):
                   time.sleep(1)
           else:
               raise RuntimeError('Jupyter did not become ready')
