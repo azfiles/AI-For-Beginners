@@ -1,10 +1,11 @@
 """Execute original notebook cells in isolated processes; retain failures."""
 from pathlib import Path
-import argparse, concurrent.futures, contextlib, hashlib, io, json, os, subprocess, sys, time, traceback
+import argparse, concurrent.futures, contextlib, hashlib, io, json, os, subprocess, sys, time, traceback, shutil, tempfile, signal
 ROOT=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
-p.add_argument("--one");p.add_argument("--workers",type=int,default=4)
+p.add_argument("--root");p.add_argument("--progress");p.add_argument("--one");p.add_argument("--workers",type=int,default=4)
 p.add_argument("--timeout",type=int,default=120);a=p.parse_args()
+if a.root:ROOT=Path(a.root)
 if a.one:
     from IPython.terminal.interactiveshell import TerminalInteractiveShell
     path=ROOT/a.one;notebook=json.loads(path.read_text())
@@ -20,6 +21,7 @@ if a.one:
                 if result.error_before_exec:raise result.error_before_exec
                 if result.error_in_exec:raise result.error_in_exec
                 count+=1
+                if a.progress:Path(a.progress).write_text(json.dumps({"executed_cells":count,"cell_index":index}))
         if "❌ Error:" in output.getvalue():
             raise RuntimeError("Notebook printed a runtime error: "+output.getvalue()[-2000:])
         result={"status":"passed","executed_cells":count}
@@ -38,14 +40,33 @@ def run(path):
     if not code.strip():return {"path":rel,"category":category,"status":"no_code"}
     env=dict(os.environ,OMP_NUM_THREADS="1",OPENBLAS_NUM_THREADS="1",
         TF_NUM_INTEROP_THREADS="1",TF_NUM_INTRAOP_THREADS="1",TOKENIZERS_PARALLELISM="false",
-        MPLBACKEND="Agg",PIP_CONSTRAINT=str(ROOT/"site/requirements-learning.txt"))
+        MPLBACKEND="Agg",PIP_CONSTRAINT=str(ROOT/"site/requirements-advanced.txt"))
     try:
-        r=subprocess.run([sys.executable,__file__,"--one",rel],capture_output=True,text=True,env=env,timeout=a.timeout)
-        result=json.loads(r.stdout.strip().splitlines()[-1]) if r.stdout.strip() else {"status":"failed","error":r.stderr[-3000:] or f"Exit code {r.returncode}"}
+        with tempfile.TemporaryDirectory(prefix="ai4beg-") as directory:
+            isolated=Path(directory)
+            # Copy tracked source only: downloads and image cleanup cannot race across notebooks.
+            chapter=path.parent.parent if path.parent.name=="lab" else path.parent
+            prefix=str(chapter.relative_to(ROOT))+"/"
+            for name in tracked:
+                if name.startswith((prefix,"data/","site/")):
+                    source=ROOT/name
+                    if source.is_file():
+                        target=isolated/name;target.parent.mkdir(parents=True,exist_ok=True)
+                        shutil.copy2(source,target)
+            progress=isolated/"progress.json"
+            proc=subprocess.Popen([sys.executable,__file__,"--root",str(isolated),"--one",rel,"--progress",str(progress)],
+                stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=env,start_new_session=True)
+            try:
+                stdout,stderr=proc.communicate(timeout=a.timeout)
+                result=json.loads(stdout.strip().splitlines()[-1]) if stdout.strip() else {"status":"failed","error":stderr[-3000:] or f"Exit code {proc.returncode}"}
+            except subprocess.TimeoutExpired:
+                os.killpg(proc.pid,signal.SIGKILL);proc.communicate()
+                result=json.loads(progress.read_text()) if progress.exists() else {}
+                result.update(status="timeout",error=f"Full execution exceeded {a.timeout}s; not verified.")
     except subprocess.TimeoutExpired:result={"status":"timeout","error":f"Full execution exceeded {a.timeout}s; not verified."}
     except Exception as e:result={"status":"failed","error":str(e)}
     result.update(path=rel,category=category,seconds=round(time.monotonic()-start,1),code_sha256=hashlib.sha256(code.encode()).hexdigest())
-    print(result["status"],rel,flush=True);return result
+    print(json.dumps(result,ensure_ascii=False),flush=True);return result
 out=ROOT/"validation";out.mkdir(exist_ok=True);results=[]
 with concurrent.futures.ThreadPoolExecutor(max_workers=a.workers) as pool:
     futures={pool.submit(run,path):path for path in paths}

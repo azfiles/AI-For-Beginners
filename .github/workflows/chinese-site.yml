@@ -18,6 +18,7 @@ jobs:
             site
             lessons
             examples
+            etc/quiz-app/src/assets/translations
             data
             images
             translated_images/zh-CN

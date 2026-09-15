@@ -8,4 +8,4 @@
 
 执行 python website/build.py，输出到 site-dist。当前构建使用根路径，部署目标应以站点根目录提供 index.html，不能直接放在未配置前缀的子路径下。
 
-既有 ChatGPT Site 已登记，项目 ID 为 appgprj_6aa7b84ff31c8191a7e0c4a8b19ac8a0，尚无已发布版本。恢复 Sites 执行能力后复用这一项目；不要新建重复站点。其源仓库推送和发布必须使用 Sites 原生流程，不能将本 GitHub 提交 SHA 冒充 Sites 源仓库的提交。
+既有 ChatGPT Site 已登记，项目 ID 为 appgprj_6aa7b84ff31c8191a7e0c4a8b19ac8a0，已发布：https://ai-beginners-zh-alex.ironman26.chatgpt.site。后续更新复用这一项目；不要新建重复站点。其源仓库推送和发布必须使用 Sites 原生流程，不能将本 GitHub 提交 SHA 冒充 Sites 源仓库的提交。
