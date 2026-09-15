@@ -51,6 +51,7 @@ jobs:
           print('Both GAN architectures completed one update; full training not tested.')
           PY
       - name: Execute style transfer with reduced iterations and verify gradients
+        if: ${{ !cancelled() }}
         env:
           OMP_NUM_THREADS: '1'
           TF_NUM_INTEROP_THREADS: '1'
