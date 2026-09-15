@@ -1,0 +1,18 @@
+services:
+  notebook:
+    build:
+      context: ..
+      dockerfile: runtime/Dockerfile
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:?Create runtime/.env with a random JUPYTER_TOKEN first}
+      SITE_ORIGIN: https://ai-beginners-zh-alex.ironman26.chatgpt.site
+    volumes:
+      - course:/course
+      - model-cache:/cache
+volumes:
+  course:
+  model-cache:
