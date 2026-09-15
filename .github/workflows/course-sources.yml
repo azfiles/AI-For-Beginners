@@ -1,0 +1,28 @@
+name: Export course development sources
+on:
+  push:
+    paths: ['.github/workflows/course-sources.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            lessons
+            data
+            examples
+            tools
+            site
+            website
+            runtime
+          persist-credentials: false
+      - run: tar -czf /tmp/course-sources.tar.gz lessons data examples tools site website runtime AGENTS.md .github
+      - uses: actions/upload-artifact@v4
+        with:
+          name: course-sources
+          path: /tmp/course-sources.tar.gz
+          retention-days: 7
