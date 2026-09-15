@@ -8,7 +8,7 @@ permissions:
 jobs:
   first_training:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install tensorflow==2.17.0 keras==3.5.0 numpy==1.26.4 matplotlib==3.10.8 scipy==1.13.1 scikit-learn==1.8.0 ipython tensorflow-datasets==4.9.6 tensorflow-metadata==1.15.0 importlib_resources
+      - run: python -m pip install tensorflow==2.17.0 keras==3.5.0 numpy==1.26.4 matplotlib==3.10.8 scipy==1.13.1 scikit-learn==1.8.0 ipython tensorflow-datasets==4.9.6 tensorflow-metadata==1.15.0 importlib_resources tensorflow-text==2.17.0 tensorflow-hub==0.16.1 tf-keras==2.17.0 transformers==4.44.2
       - name: Verify repaired input and shape paths with real data and two training batches
         env:
           OMP_NUM_THREADS: '1'
@@ -30,24 +30,30 @@ jobs:
           from pathlib import Path
           from IPython.terminal.interactiveshell import TerminalInteractiveShell
           import tensorflow as tf
+          import tf_keras as legacy_keras
           original_fit=tf.keras.Model.fit
+          legacy_fit=legacy_keras.Model.fit
           calls=[]
           def limited_fit(self,x,*args,**kwargs):
               if isinstance(x,tf.data.Dataset):x=x.take(2)
               if isinstance(kwargs.get('validation_data'),tf.data.Dataset):
                   kwargs['validation_data']=kwargs['validation_data'].take(1)
               kwargs['epochs']=1
-              result=original_fit(self,x,*args,**kwargs)
+              if 'steps_per_epoch' in kwargs:kwargs['steps_per_epoch']=2
+              if 'validation_steps' in kwargs:kwargs['validation_steps']=1
+              chosen_fit=legacy_fit if isinstance(self,legacy_keras.Model) else original_fit
+              result=chosen_fit(self,x,*args,**kwargs)
               assert all(tf.math.is_finite(v) for v in result.history['loss'])
               calls.append(self.name)
               return result
           tf.keras.Model.fit=limited_fit
+          legacy_keras.Model.fit=limited_fit
           specs={
               '13-TextRep/TextRepresentationTF.ipynb':None,
               '14-Embeddings/EmbeddingsTF.ipynb':5,
               '16-RNN/RNNTF.ipynb':9,
               '17-GenerativeNetworks/GenerativeTF.ipynb':13,
-              '18-Transformers/TransformersTF.ipynb':8,
+              '18-Transformers/TransformersTF.ipynb':None,
           }
           root=Path('lessons/5-NLP').resolve()
           for relative,last in specs.items():

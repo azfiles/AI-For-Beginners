@@ -1,36 +1,46 @@
-# 浏览器 Notebook 执行后端
+# 本机 Notebook 环境
 
-状态：部署配置已准备，尚未在持久服务器构建或启动。现有 Site 是阅读站，尚未接入 Notebook 执行接口。
+浏览器兼容课程可直接在中文版 Site 中运行。PyTorch、TensorFlow 等完整 Python 课程使用此本机环境：代码、模型和数据都留在你的机器上。当前配置面向 Linux x86_64 CPU；其他架构与 GPU 配置需单独验证。
 
-## 结构
+## 启动
 
-Site 展示中文教程并作为操作界面；Jupyter Server 在一台持久 Linux 服务器上运行 Python 内核，执行 PyTorch/TensorFlow，返回输出和图像。Jupyter 提供会话和内核 API：https://jupyter-server.readthedocs.io/en/latest/developers/rest-api.html 。
-
-本配置是 Linux CPU 版本。GPU 版本需要根据目标机器的显卡和驱动另行配置。当前临时工作区不能作为持久执行后端。
-
-## 本地启动
-
-需要服务器已安装 Docker Engine 和 Compose。在完整检出的仓库执行：
+安装 Docker Engine 与 Compose，并完整检出本仓库。在仓库根目录执行：
 
 ```bash
 cd runtime
+mkdir -p local-data
 python -c "import secrets; print('JUPYTER_TOKEN=' + secrets.token_urlsafe(32))" > .env
 docker compose up --build -d
 ```
 
-首次创建 .env 后保留它，不要重复生成覆盖已有凭据，也不要提交到 Git。服务绑定服务器的 127.0.0.1:8888；在这台机器上打开 http://127.0.0.1:8888/lab 并使用 .env 中的 token 登录。
+.env 只在首次启动时创建；保留已有文件，不要覆盖或提交凭据。打开 http://127.0.0.1:8888/lab，使用 .env 中的 token 登录，在 lessons 或 examples 中选择 Notebook。服务只暴露在本机回环地址。
 
-要从 Site 访问，需要目标服务器的 HTTPS 入口或私有连接。当前尚未提供服务器地址，因此没有创建入口，也没有在 Site 展示已连接状态。不要直接将未配置 TLS 的 8888 端口开放到公网。
+Site 中的浏览器运行入口使用 JupyterLite。此本机环境提供独立的完整 JupyterLab 界面，尚未实现从 Site 远程控制本机内核。
 
-## 模型和数据保留在哪里
+## 本地数据
 
-- Docker 的 course 数据卷保存 Notebook、学习者修改以及课程相对目录下下载和解压的数据。
-- model-cache 数据卷保存 Hugging Face、Torch、Keras、TensorFlow Datasets、Gensim 等缓存。
-- 普通容器重建保留数据卷；不要执行 docker compose down -v，除非明确要删除全部学习文件和缓存。
-- 更新镜像不会自动覆盖 course 卷里的学习者文件；升级课程时需要保留个人修改，再同步新版本。
+把已有数据放入 runtime/local-data/，容器会在 /local-data/ 只读访问它。在 .env 中按需添加以下变量，然后执行 docker compose up -d 并重启 Notebook 内核：
 
-课程所需的模型、压缩包和数据集还没有在目标服务器预下载。确定机器后，应按课程资源清单逐项下载、校验并登记缓存位置，再验证断网或缓存命中情况下的执行。需要账号、许可或 API key 的资源无法仅靠公开下载补齐。
+```dotenv
+PH2_DATA_DIR=/local-data/PH2Dataset
+NER_DATASET_CSV=/local-data/ner_dataset.csv
+BODY_SEGMENTATION_DIR=/local-data/segmentation_full_body_mads_dataset_1192_img
+CLIP_IMAGES_DIR=/local-data/cats
+NEWS_TITLES_JSON=/local-data/news-titles.json
+```
 
-## 已知范围
+只添加你实际准备好的路径。news-titles.json 的格式是标题字符串数组。若要读取实时新闻，可以设置 NEWSAPI_KEY，替代本地标题文件。
 
-依赖基于仓库记录的 CPU 验证环境。Jupyter 容器本身尚未完成构建测试；完整课程也未全部通过。查看 site/RUNNING.zh-CN.md 和 GitHub Actions 的逐文件执行结果。缓存资源可以减少下载，不会自动修复代码接口、练习占位符或缺失凭据。
+- MNIST 随仓库提供，基础课程不需要重新下载。
+- NER 和人体分割课程在未指定本地路径时，尝试从原始 Kaggle 数据集下载并缓存；下载失败会保留明确错误。
+- PH2 需按[原作者页面](https://www.fc.up.pt/addi/ph2%20database.html)登记获取并解压，目录应包含 PH2 Dataset images。不将该数据集重新发布到 Site 或 GitHub。
+- CLIP 默认使用课程内已有的两张图片，可用自己的图片目录替换。
+- 其余课程首次运行可能下载原始模型或数据。缓存命中后可复用，但不代表全部课程已验证完全离线运行。
+
+## 保存与更新
+
+course 数据卷保存 Notebook、修改和课程目录中的数据；model-cache 数据卷保存 Hugging Face、Torch、Keras、TFDS、Gensim 和数据下载缓存。普通容器重建保留这些卷。
+
+镜像升级不会覆盖学习者已修改的文件。更新课程时先下载备份你的 Notebook，再将所需新版课程文件导入 JupyterLab。不要用删除数据卷的方式更新课程。
+
+验证状态以 site/RUNNING.zh-CN.md 和 GitHub Actions 的逐项结果为准。容器能启动、简短训练通过和整本完整执行通过是不同的验证范围。

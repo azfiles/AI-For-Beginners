@@ -3,6 +3,7 @@ services:
     build:
       context: ..
       dockerfile: runtime/Dockerfile
+    env_file: .env
     init: true
     restart: unless-stopped
     ports:
@@ -13,6 +14,7 @@ services:
     volumes:
       - course:/course
       - model-cache:/cache
+      - ./local-data:/local-data:ro
 volumes:
   course:
   model-cache:
