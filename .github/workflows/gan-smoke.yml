@@ -1,7 +1,7 @@
-name: GAN compatibility smoke test
+name: Generative models compatibility smoke test
 on:
   push:
-    paths: ['lessons/4-ComputerVision/10-GANs/GANTF.ipynb', '.github/workflows/gan-smoke.yml']
+    paths: ['lessons/4-ComputerVision/10-GANs/GANTF.ipynb', '.github/workflows/gan-smoke.yml', 'lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb']
   workflow_dispatch:
 permissions:
   contents: read
@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install tensorflow==2.17.0 keras==3.5.0 numpy==1.26.4 matplotlib==3.10.8
+      - run: python -m pip install tensorflow==2.17.0 keras==3.5.0 numpy==1.26.4 matplotlib==3.10.8 scipy==1.13.1
       - name: Execute both GAN architectures and verify weight updates
         env:
           OMP_NUM_THREADS: '1'
@@ -49,4 +49,27 @@ jobs:
                   checked+=1
           assert checked==2
           print('Both GAN architectures completed one update; full training not tested.')
+          PY
+      - name: Execute style transfer with reduced iterations and verify gradients
+        env:
+          OMP_NUM_THREADS: '1'
+          TF_NUM_INTEROP_THREADS: '1'
+          TF_NUM_INTRAOP_THREADS: '1'
+          MPLBACKEND: Agg
+          STYLE_TRANSFER_SIZE: '64'
+          STYLE_TRANSFER_ITERATIONS: '1'
+        run: |
+          python - <<'PY'
+          import json, numpy as np
+          from pathlib import Path
+          path=Path('lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb')
+          namespace={}
+          for index,cell in enumerate(json.loads(path.read_text())['cells']):
+              if cell['cell_type']=='code':
+                  exec(compile(''.join(cell['source']),str(path)+':'+str(index),'exec'),namespace)
+          loss,gradient=namespace['calculate_loss'](namespace['xopt'])
+          assert np.isfinite(loss) and np.isfinite(gradient).all()
+          assert np.linalg.norm(gradient)>0
+          assert not np.array_equal(namespace['x_opt'],namespace['xopt'])
+          print('All style-transfer cells completed with reduced iterations; loss and image gradient are finite.')
           PY
