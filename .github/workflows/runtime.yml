@@ -1,0 +1,48 @@
+name: Local notebook runtime
+on:
+  push:
+    paths: ['runtime/**', '.github/workflows/runtime.yml', 'site/requirements-*.txt']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            runtime
+            site
+            lessons
+            examples
+            data
+          persist-credentials: false
+      - run: docker build -t course-runtime -f runtime/Dockerfile .
+      - name: Check framework imports and Jupyter authentication
+        run: |
+          docker run --rm course-runtime python -c "import tensorflow, torch, torchvision, torchtext, jupyterlab; print(tensorflow.__version__, torch.__version__)"
+          docker run -d --name course-test -p 127.0.0.1:8888:8888 -e JUPYTER_TOKEN=ci-ephemeral-token course-runtime
+          python - <<'PY'
+          import time, urllib.request, urllib.error
+          for _ in range(60):
+              try:
+                  request=urllib.request.Request('http://127.0.0.1:8888/api/contents/lessons', headers={'Authorization':'token ci-ephemeral-token'})
+                  with urllib.request.urlopen(request, timeout=2) as response:
+                      assert response.status == 200
+                  break
+              except urllib.error.URLError:
+                  time.sleep(1)
+          else:
+              raise RuntimeError('Jupyter did not become ready')
+          try:
+              urllib.request.urlopen('http://127.0.0.1:8888/api/contents/lessons')
+          except urllib.error.HTTPError as error:
+              assert error.code in (401,403)
+          else:
+              raise AssertionError('Unauthenticated API access was allowed')
+          print('RUNTIME_PASSED: authenticated contents API and framework imports')
+          PY
+      - if: always()
+        run: docker rm -f course-test || true

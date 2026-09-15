@@ -5,6 +5,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'lite-content'
 SPECS = {
+    'lessons/3-NeuralNetworks/03-Perceptron/lab/PerceptronMultiClass.ipynb': ['numpy', 'matplotlib'],
+    'lessons/3-NeuralNetworks/04-OwnFramework/lab/MyFW_MNIST.ipynb': ['numpy', 'scikit-learn'],
     'lessons/3-NeuralNetworks/03-Perceptron/Perceptron.ipynb': ['numpy', 'matplotlib', 'scikit-learn', 'ipywidgets'],
     'lessons/3-NeuralNetworks/04-OwnFramework/OwnFramework.ipynb': ['numpy', 'matplotlib', 'scikit-learn'],
     'lessons/6-Other/21-GeneticAlgorithms/Genetic.ipynb': ['numpy', 'matplotlib'],

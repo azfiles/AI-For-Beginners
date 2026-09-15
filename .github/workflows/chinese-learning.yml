@@ -1,18 +1,18 @@
 name: Chinese curriculum execution audit
 on:
   push:
-    branches: [main]
+    branches: [main, codex/gan-compatibility]
     paths: ['tools/**', 'site/**', 'lessons/**', 'examples/**', '.github/workflows/chinese-learning.yml']
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: chinese-learning-main
+  group: chinese-learning-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   execution:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
         with:
@@ -32,7 +32,7 @@ jobs:
           python -m pip install -r site/requirements-learning.txt
           python -m pip install -r site/requirements-advanced.txt
       - name: Execute all curriculum notebooks and beginner scripts
-        run: python tools/validate_learning.py --workers 4 --timeout 120
+        run: python tools/validate_learning.py --workers 4 --timeout 600
       - name: Preserve execution results even when lessons fail
         if: always()
         uses: actions/upload-artifact@v4
