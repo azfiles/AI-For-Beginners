@@ -8,9 +8,10 @@ from prepare_lite import SPECS
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/"site-dist";ZH="translations/zh-CN/"
 OUT.mkdir(exist_ok=True)
 REPO="https://github.com/azfiles/AI-For-Beginners"
+VALIDATION=json.loads((ROOT/"website/validation-status.json").read_text())["files"]
 REV=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
 tracked=subprocess.check_output(["git","ls-files"],cwd=ROOT,text=True).splitlines()
-files={key:ROOT/key for key in tracked if (key.startswith(("lessons/","examples/")) and "/translations/" not in key and Path(key).suffix in (".md",".ipynb",".py")) or (key.startswith(ZH) and key.endswith(".md") and Path(key).name not in ("AGENTS.md","CONTRIBUTING.md","SECURITY.md")) or key=="site/RUNNING.zh-CN.md"}
+files={key:ROOT/key for key in tracked if (key.startswith(("lessons/","examples/")) and "/translations/" not in key and Path(key).suffix in (".md",".ipynb",".py")) or (key.startswith(ZH) and key.endswith(".md") and Path(key).name not in ("AGENTS.md","CONTRIBUTING.md","SECURITY.md")) or key in ("site/RUNNING.zh-CN.md", "site/VALIDATION.zh-CN.md")}
 aliases={key:ZH+key if ZH+key in files else key for key in files}
 def route(key):return "/pages/"+quote(aliases.get(key,key),safe="/")+".html"
 def title(md,fallback):
@@ -41,6 +42,10 @@ def resolve(url,source):
     if path.startswith(ZH) and not (ROOT/path).is_file():path=path[len(ZH):]
     if path=="lessons/4-ComputerVision/11-ObjectDetection/lab/PASCAL VOC":return "https://host.robots.ox.ac.uk/pascal/VOC/"
     path=fixes.get(path,path)
+    # Point curriculum links at the browser kernel when a Pyodide copy exists.
+    # Keep the explicit download button on Notebook pages for exporting work.
+    if path in SPECS:
+        return "/lite/lab/index.html?path="+quote(path,safe="/")+fragment
     if path in files:return route(path)+fragment
     p=ROOT/path
     if not p.exists():
@@ -100,7 +105,9 @@ for source in SPECS:
 notebooks+='</ul><h2>完整 Python 环境</h2><p>下列 Notebook 保留原版框架。安装说明、数据要求与验证结果请见<a href="'+route("site/RUNNING.zh-CN.md")+'">运行说明</a>。</p><ul>'
 for source in sorted(files):
     if source.endswith('.ipynb') and source not in SPECS:
-        notebooks+='<li><a href="'+route(source)+'">'+html.escape(source.removeprefix('lessons/'))+'</a></li>'
+        record=VALIDATION.get(source,{})
+        detail=record.get('label','未验证') + ('；'+record['note'] if record.get('note') else '')
+        notebooks+='<li><a href="'+route(source)+'">'+html.escape(source.removeprefix('lessons/'))+'</a><br><small>'+html.escape(detail)+'</small></li>'
 notebooks+='</ul>'
 (OUT/'notebooks.html').write_text(shell('运行 Notebook',notebooks))
 body='<p class="label">AI FOR BEGINNERS / 简体中文</p><h1>人工智能，从理解到实践</h1><p>12 周 · 24 课 · 附多模态拓展<br>阅读中文讲义，结合 Python、PyTorch 与 TensorFlow 完成动手练习。</p><div class="actions"><a href="'+route(rows[1][2])+'">阅读第一课</a><a href="/notebooks.html">运行 Notebook</a><a href="'+route("site/RUNNING.zh-CN.md")+'">准备运行环境</a></div><h2>课程目录</h2>'
