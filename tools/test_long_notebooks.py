@@ -36,6 +36,8 @@ for i,c in enumerate(n.cells):
   c.source=c.source.replace('num = bs*100','num = bs*2').replace('[700,100]','[14,2]')
  if a.lesson=='transfer_tf':c.source=c.source.replace('batch_size = 64','batch_size = 4')
  if a.lesson=='transformers_torch':c.source=re.sub(r'batch_size\s*=\s*\d+','batch_size=2',c.source)
+ if a.lesson=='adversarial_tf':
+  c.source=c.source.replace('            x.assign_sub(eta*grads)', "            before = x.numpy().copy()\n            x.assign_sub(eta*grads)\n            tf.debugging.assert_all_finite(x, 'Non-finite image')\n            assert not np.array_equal(before, x.numpy())\n            compatibility_training_steps.append('pixel_gradient')")
  if c.source!=source:changes.append({'cell':i,'original':source,'validation_source':c.source})
 bootstrap='''import numpy as np
 compatibility_training_steps=[]
@@ -84,7 +86,8 @@ original_apply=tf.keras.optimizers.Optimizer.apply_gradients
 def checked_apply(self,grads_and_vars,*args,**kwargs):
     pairs=list(grads_and_vars)
     assert pairs and all(g is not None for g,v in pairs), 'Missing gradients'
-    assert all(bool(tf.reduce_all(tf.math.is_finite(g))) for g,v in pairs), 'Non-finite gradients'
+    for g,v in pairs:
+        tf.debugging.assert_all_finite(g.values if isinstance(g,tf.IndexedSlices) else g, 'Non-finite gradients')
     result=original_apply(self,pairs,*args,**kwargs)
     compatibility_training_steps.append(type(self).__name__)
     return result
