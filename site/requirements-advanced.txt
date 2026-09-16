@@ -15,3 +15,7 @@ seaborn==0.13.2
 importlib_resources
 
 tensorflow-text==2.17.0
+python-gedcom==1.1.0
+rdflib==7.1.4
+owlrl==7.1.4
+experta==1.9.4

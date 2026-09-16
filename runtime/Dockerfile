@@ -9,7 +9,7 @@ COPY --chown=learner:learner examples /opt/course/examples
 COPY --chown=learner:learner data /opt/course/data
 COPY --chown=learner:learner site /opt/course/site
 COPY runtime/start.py runtime/jupyter_server_config.py /opt/runtime/
-ENV HOME=/home/learner HF_HOME=/cache/huggingface TORCH_HOME=/cache/torch KERAS_HOME=/cache/keras TFDS_DATA_DIR=/cache/tfds XDG_CACHE_HOME=/cache/xdg GENSIM_DATA_DIR=/cache/gensim
+ENV HOME=/home/learner HF_HOME=/cache/huggingface TORCH_HOME=/cache/torch KERAS_HOME=/cache/keras TFDS_DATA_DIR=/cache/tfds TFHUB_CACHE_DIR=/cache/tfhub XDG_CACHE_HOME=/cache/xdg GENSIM_DATA_DIR=/cache/gensim
 USER learner
 WORKDIR /course
 EXPOSE 8888

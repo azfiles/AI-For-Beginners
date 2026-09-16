@@ -36,6 +36,7 @@ jobs:
           cp /tmp/course-math/node_modules/katex/LICENSE website/vendor/katex/LICENSE
       - name: Build browser notebook environment
         run: |
+          python -m pip wheel --no-deps --wheel-dir website/wheels experta==1.9.4 frozendict==1.2 schema==0.6.7
           python website/prepare_lite.py
           jupyter lite build --lite-dir website/lite --contents lite-content --output-dir site-dist/lite
       - name: Build and verify local page links

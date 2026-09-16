@@ -1,0 +1,33 @@
+name: Symbolic notebook execution
+on:
+  push:
+    paths: ['lessons/2-Symbolic/**', '.github/workflows/symbolic-notebooks.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  symbolic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: lessons/2-Symbolic
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install nbclient ipykernel python-gedcom==1.1.0 rdflib==7.1.4 owlrl==7.1.4 experta==1.9.4
+      - run: |
+          python - <<'PY'
+          import nbformat
+          from pathlib import Path
+          from nbclient import NotebookClient
+          for name in ['Animals.ipynb','FamilyOntology.ipynb']:
+              path=Path('lessons/2-Symbolic')/name
+              notebook=nbformat.read(path,as_version=4)
+              NotebookClient(notebook,kernel_name='python3',timeout=180,resources={'metadata':{'path':str(path.parent)}}).execute()
+              errors=[o for c in notebook.cells for o in c.get('outputs',[]) if o.output_type=='error']
+              assert not errors, errors
+              print('SYMBOLIC_PASSED',name)
+          PY
