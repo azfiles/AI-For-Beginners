@@ -4,7 +4,10 @@ import argparse, concurrent.futures, contextlib, hashlib, io, json, os, subproce
 ROOT=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser()
 p.add_argument("--root");p.add_argument("--progress");p.add_argument("--one");p.add_argument("--workers",type=int,default=4)
-p.add_argument("--timeout",type=int,default=120);a=p.parse_args()
+p.add_argument("--timeout",type=int,default=120)
+p.add_argument("--shard-index",type=int,default=0);p.add_argument("--shard-count",type=int,default=1)
+a=p.parse_args()
+if not 0 <= a.shard_index < a.shard_count:p.error("Invalid shard index/count")
 if a.root:ROOT=Path(a.root)
 if a.one:
     import nbformat
@@ -31,7 +34,7 @@ if a.one:
     print(json.dumps(result));sys.exit(0)
 paths=sorted(list((ROOT/"lessons").rglob("*.ipynb"))+list((ROOT/"examples").rglob("*.ipynb")))
 tracked=set(subprocess.check_output(["git","ls-files"],cwd=ROOT,text=True).splitlines())
-paths=[x for x in paths if str(x.relative_to(ROOT)) in tracked]
+paths=[x for x in paths if str(x.relative_to(ROOT)) in tracked][a.shard_index::a.shard_count]
 def run(path):
     rel=str(path.relative_to(ROOT));n=json.loads(path.read_text());start=time.monotonic()
     code="\n".join("".join(c.get("source",[])) for c in n["cells"] if c["cell_type"]=="code")
@@ -66,13 +69,15 @@ def run(path):
     except Exception as e:result={"status":"failed","error":str(e)}
     result.update(path=rel,category=category,seconds=round(time.monotonic()-start,1),code_sha256=hashlib.sha256(code.encode()).hexdigest())
     print(json.dumps(result,ensure_ascii=False),flush=True);return result
-out=ROOT/"validation";out.mkdir(exist_ok=True);results=[]
+out=ROOT/"validation"
+if a.shard_count>1:out=out/("shard-"+str(a.shard_index))
+out.mkdir(parents=True,exist_ok=True);results=[]
 with concurrent.futures.ThreadPoolExecutor(max_workers=a.workers) as pool:
     futures={pool.submit(run,path):path for path in paths}
     for future in concurrent.futures.as_completed(futures):
         results.append(future.result())
         (out/"notebooks.json").write_text(json.dumps(results,ensure_ascii=False,indent=2))
-for path in sorted((ROOT/"examples").glob("*.py")):
+for path in (sorted((ROOT/"examples").glob("*.py")) if a.shard_index==0 else []):
     try:
         r=subprocess.run([sys.executable,str(path)],input="quit\n",capture_output=True,text=True,timeout=60,cwd=ROOT)
         result={"path":str(path.relative_to(ROOT)),"category":"script","status":"passed" if r.returncode==0 else "failed","output":r.stdout,"error":r.stderr}
