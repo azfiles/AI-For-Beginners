@@ -1,7 +1,7 @@
 name: Long notebook all-cell compatibility
 on:
   push:
-    paths: ['tools/test_long_notebooks.py', 'tools/prepare_cifar.py', '.github/workflows/long-notebooks.yml']
+    paths: ['tools/test_long_notebooks.py', 'tools/prepare_cifar.py', 'lessons/4-ComputerVision/**', 'lessons/5-NLP/**', 'site/requirements*.txt', '.github/workflows/long-notebooks.yml']
   workflow_dispatch:
 permissions:
   contents: read
