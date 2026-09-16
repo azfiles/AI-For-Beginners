@@ -16,6 +16,9 @@ permissions:
   contents: read
 jobs:
   report:
+    # Superseded audits are cancelled before producing a complete report.
+    # Do not misreport missing cancellation artifacts as a curriculum failure.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
