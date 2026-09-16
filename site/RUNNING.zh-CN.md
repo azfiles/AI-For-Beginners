@@ -1,78 +1,77 @@
 # 中文课程：运行说明与验证范围
 
-更新日期：2026-09-15。
+更新日期：2026-09-16。
 
-## 当前进度
+## 在 Site 运行 Notebook
 
-- 已同步 Microsoft 上游 536 个提交，上游版本为 `392d0df1b2647cbee104942390551f1ed9e072c8`。
-- 五份入门 Notebook 已在 GitHub Actions 重新执行通过。全量审计覆盖 54 个 Notebook 和 3 个脚本，结果为 15 通过（包含 2 个练习模板）、28 失败、12 超时、1 需交互输入、1 无代码。
-- [中文学习站](https://ai-beginners-zh-alex.ironman26.chatgpt.site)已发布，包含 130 个页面，保留私人访问权限。
-- **未达到“全部学习代码均能正常运行”的验收标准。** 高级课程、外部服务和练习模板仍有未解决问题。
+打开导航中的「运行 Notebook」，选择课程，等待 Python 内核就绪，再选择「运行 → 运行所有单元格」。代码在当前浏览器中执行，使用你的设备算力。首次加载 Python 和依赖需要网络。MNIST 已随站点提供；其他本地文件可以拖入左侧文件区。修改后请下载 Notebook 备份，浏览器存储可能被清理。
 
-## 从入门示例开始
+以下五个入口已在真实 Chromium 浏览器中逐单元执行，通过检查包括绘图输出错误：
 
-在完整仓库根目录执行：
-
-```bash
-python examples/01-hello-ai-world.py
-python examples/02-simple-neural-network.py
-python examples/04-text-sentiment.py
-```
-
-三个脚本此前均实际执行通过；情感分析示例输入 `quit` 退出。
-
-## 五份已修复且此前执行通过的 Notebook
-
-| Notebook | 修复内容 |
+| Notebook | 实际验证范围 |
 | --- | --- |
-| [感知器](../lessons/3-NeuralNetworks/03-Perceptron/Perceptron.ipynb) | 将仓库内 MNIST 的三元组格式适配为课程使用的命名数据集，保留像素缩放语义 |
-| [自建神经网络框架](../lessons/3-NeuralNetworks/04-OwnFramework/OwnFramework.ipynb) | 改用 inline 绘图后端、通过 artist.remove() 清理图元、使用 np.nan |
-| [Keras 入门](../lessons/3-NeuralNetworks/05-Frameworks/IntroKeras.ipynb) | 将 compile 的指标参数改为显式 metrics，避免被识别为 loss_weights |
-| [TensorFlow 入门](../lessons/3-NeuralNetworks/05-Frameworks/IntroKerasTF.ipynb) | 同上 |
-| [PyTorch 入门](../lessons/3-NeuralNetworks/05-Frameworks/IntroPyTorch.ipynb) | Lightning 自动选择 CPU/GPU，移除强制 GPU 要求 |
+| 感知器 Perceptron | 完整教程，27 个代码单元 |
+| 自建神经网络框架 OwnFramework | 完整教程，28 个代码单元 |
+| 遗传算法 Genetic | 完整教程，17 个代码单元；算法设有最大迭代次数 |
+| 多分类感知器 PerceptronMultiClass | 8 个准备代码单元；仍需自己完成练习 |
+| 自建框架 MNIST MyFW_MNIST | 6 个准备代码单元；仍需自己完成练习 |
 
-已清除这些 Notebook 的历史输出，避免把上游旧输出误认为本次执行结果。验证采用独立 Python 进程中的 IPython，按顺序执行代码单元；不是对浏览器、Jupyter 界面或 Colab 的验证，也不代表所有模型效果已验收。
+[浏览器执行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/34981402513)。练习中的留白保留教学用途，准备代码通过不代表练习答案已完成。
 
-此前还执行通过图像分类入门、FamilyOntology、OpenCV、Genetic Notebook。部分实验文件只是模板，不能将其执行完成视为完成实验。
+## 完整 Python 环境
 
-## 本地运行核心课程
+TensorFlow、PyTorch 等课程使用完整 Python 内核。Site 的 JupyterLite 不提供这些原生框架，也未实现从 Site 远程控制本机内核。可以在本机 JupyterLab 中执行，并复用本地数据和模型缓存。
 
-本次验证环境为 Linux x86_64、Python 3.12、NumPy 1.26.4、TensorFlow 2.17 / Keras 3.5、PyTorch 2.2.2 CPU。下列直接依赖版本记录于 requirements-learning.txt；这不是覆盖所有高级课程的完整传递依赖锁文件。
+推荐按[本机环境说明](https://github.com/azfiles/AI-For-Beginners/blob/main/runtime/README.zh-CN.md)使用 Docker。配置面向 Linux x86_64 CPU，包含 Python 3.11、TensorFlow 2.17、Keras 3.5、PyTorch 2.2.2。GPU、macOS 和 Windows 尚未实测。
+
+若不用 Docker，在完整仓库根目录执行：
 
 ```bash
-git clone --filter=blob:none --sparse https://github.com/azfiles/AI-For-Beginners.git
-cd AI-For-Beginners
-git sparse-checkout set lessons data examples site
-python3.12 -m venv .venv
+python3.11 -m venv .venv
 source .venv/bin/activate
-# Linux CPU：先装成套的 CPU wheel，避免混用 CPU 与 CUDA 的 TorchVision
 python -m pip install torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cpu
-python -m pip install -r site/requirements-learning.txt
+python -m pip install -r site/requirements-advanced.txt
 python -m pip install jupyterlab
 python -m ipykernel install --user --name ai4beg --display-name "AI for Beginners"
 python -m jupyter lab
 ```
 
-macOS 不使用上述 Linux CPU wheel 安装命令，直接安装 requirements-learning.txt；macOS 与 Windows 尚未实测。Windows 激活命令为 `.venv\\Scripts\\Activate.ps1`。
+上面的 Torch 安装命令面向 Linux CPU。保留完整 lessons、examples、data 和 site 目录，以 Notebook 所在目录为工作目录，选择 AI for Beginners 内核。依赖文件记录直接依赖版本，不是完整传递依赖锁文件。
 
-选择 AI for Beginners 内核。保留完整 lessons 与 data 目录，并以 Notebook 所在目录为工作目录，避免辅助模块和相对数据路径失效。
+## 模型、数据与外部服务
 
-## Colab 与高级课程
+- MNIST 随仓库和浏览器课程提供。
+- NER 和人体分割支持本地数据；未指定本地路径时尝试下载原始 Kaggle 数据集并缓存。下载失败会明确报错，不会用假数据代替。
+- PH2 医学分割数据需从[原作者页面](https://www.fc.up.pt/addi/ph2%20database.html)登记获取。下载解压后设置 PH2_DATA_DIR；站点不重新分发该数据集。
+- CLIP 默认使用课程自带的两张图片，也可设置 CLIP_IMAGES_DIR 使用自己的图片。
+- MSConceptGraph 需要 NEWSAPI_KEY，或通过 NEWS_TITLES_JSON 提供本地标题字符串数组 JSON 文件；概念查询仍需要网络。
+- 其他模型和数据可能在首次运行下载。Docker 的持久化缓存卷可复用下载结果；未验证所有课程完全离线可用。
 
-Colab 打开单个 Notebook 时不会同时获取仓库数据和辅助模块，需先克隆仓库并切换到相应课程目录。Colab 预装依赖与本次测试环境不同，未保证兼容。
+本地路径变量及目录结构见本机环境说明。Colab 只打开单个文件不会自动取得仓库其他数据和辅助模块，需要自行克隆课程并准备环境，尚未验证其预装环境兼容性。
 
-仍需处理的已发现问题包括：
+## 实际验证结果
 
-- MSConceptGraph 需要自己的 NewsAPI key；未提供有效账号凭据，不能端到端验证。
-- NER 需要额外的 ner_dataset.csv；人体分割需要对应数据集。
-- 多个 lab 保留未完成的练习代码，应由学习者补全，不能标为已完成的示例。
-- 已适配 Gym reset/step 新接口，尚需完整训练复测。
-- 部分高级 Keras 示例使用旧 API，例如 lr 参数、np.int 等。
-- CNN、GAN、迁移学习等完整训练超出本次执行时间预算的项目，均不算通过。
-- TextRepresentationPyTorch 已通过全量审计；已修复 TextVectorization、TorchText 词表及本地 BERT 路径兼容问题，其他 NLP 结果以最新报告为准。
+**尚未达到所有 Notebook 完整执行通过的标准。** 完整训练、短训练测试、练习准备代码和浏览器执行分别记录，不合并为「全部通过」。
 
-## 自动验证
+已完成的专项测试：
 
-[GitHub Actions 执行记录](https://github.com/azfiles/AI-For-Beginners/actions/workflows/chinese-learning.yml)包含逐个文件的实际结果，失败不会被忽略。每个 Notebook 使用独立的源文件目录，以免下载与清理数据相互干扰。CPU 完整执行每份文件限制 120 秒；超时仅表示尚未验证，不代表代码已通过。
+- 本机 Docker 环境：镜像构建、TensorFlow/PyTorch/TorchText 导入、Jupyter 启动、携带 token 访问成功和匿名访问被拒绝均通过。[执行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/35040738983)。这不等于所有课程执行通过。
 
-完整扩展环境使用 `python -m pip install -r site/requirements-advanced.txt`，随后在完整检出的仓库执行 `python tools/validate_learning.py --workers 4 --timeout 120`。提高 timeout 可验证较长训练，但需要相应计算资源。外部账号、受限数据集和未完成练习需要另行准备。
+- 三份完整浏览器教程和两份练习准备代码：见上表。
+- GAN 两种 TensorFlow 网络：真实训练更新后权重变化且损失有限；风格迁移 Keras：实际梯度与图像更新通过。[执行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/34920542596)。这是短训练验证。
+- TensorFlow 自编码器：原 Notebook 全部单元执行，四条训练路径使用 128 张真实 MNIST 图片、各 1 个 epoch。[执行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/34982157923)。未验证原定长训练效果。
+- TensorFlow NLP：文本表示全本及词嵌入、RNN、生成网络、Transformer 的首个训练路径通过，每次限制两个真实数据批次。[执行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/34981402515)。不代表后续所有模型均已验证。
+
+上一轮完整审计覆盖 54 个 Notebook 和 3 个脚本：16 通过、20 失败、19 超时、1 需交互输入、1 无代码。这是修复前基线，不能用于代表当前源文件的通过率。[原始记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/34920045780)。后续修复已提交，最新结果以[全量执行记录](https://github.com/azfiles/AI-For-Beginners/actions/workflows/chinese-learning.yml)为准。
+
+当前审计使用真实 Jupyter 内核，逐单元执行，记录异常和输出错误；每份 Notebook 单独隔离目录，完整执行限时 600 秒。超时视为未验证。需要账号、受限数据、交互输入或学习者完成代码的项目不能自动判为通过。
+
+```bash
+python tools/validate_learning.py --workers 4 --timeout 600
+```
+
+结果保存在 validation/results.json，包含每个文件状态、执行单元数及源代码摘要。GitHub Actions 即使失败也会保留报告。更多计算时间可能解决训练超时，但不会自动解决外部数据或未完成练习。
+
+## 上游同步
+
+已同步 Microsoft 原始仓库至 392d0df1b2647cbee104942390551f1ed9e072c8，保留课程结构和简体中文翻译。中文教材来自上游翻译，Notebook 注释保留原语言。
