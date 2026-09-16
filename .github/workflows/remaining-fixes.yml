@@ -1,0 +1,67 @@
+name: Verify remaining notebook compatibility fixes
+on:
+  push:
+    paths: ['.github/workflows/remaining-fixes.yml', 'lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb', 'lessons/6-Other/22-DeepRL/notebook.ipynb']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        lesson: [embeddings, reinforcement]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            lessons
+            site
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install tensorflow==2.17.0 keras==3.5.0 tensorflow-datasets==4.9.6 tensorflow-metadata==1.15.0 importlib_resources numpy==1.26.4 scipy==1.13.1 gensim==4.3.3 matplotlib==3.10.8 gym==0.26.2 pygame==2.6.1 pillow==12.3.0 nbclient ipykernel
+      - name: Execute every cell and assert actual inference output
+        env:
+          LESSON: ${{ matrix.lesson }}
+          OMP_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          TF_NUM_INTEROP_THREADS: '1'
+          TF_NUM_INTRAOP_THREADS: '1'
+          SDL_VIDEODRIVER: dummy
+          MPLBACKEND: Agg
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          import nbformat
+          from nbclient import NotebookClient
+          name=os.environ['LESSON']
+          path=Path('lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb' if name=='embeddings' else 'lessons/6-Other/22-DeepRL/notebook.ipynb')
+          n=nbformat.read(path,as_version=4)
+          if name=='embeddings':
+              n.cells.insert(0,nbformat.v4.new_code_cell('''import tensorflow as tf
+          import numpy as np
+          original_fit=tf.keras.Model.fit
+          calls=[]
+          def limited_fit(self,x,*args,**kwargs):
+              if isinstance(x,tf.data.Dataset):x=x.take(2)
+              if isinstance(kwargs.get('validation_data'),tf.data.Dataset):kwargs['validation_data']=kwargs['validation_data'].take(1)
+              kwargs['epochs']=1
+              result=original_fit(self,x,*args,**kwargs)
+              assert np.isfinite(result.history['loss']).all()
+              calls.append(self.name)
+              return result
+          tf.keras.Model.fit=limited_fit
+          '''))
+              n.cells.append(nbformat.v4.new_code_cell('assert len(calls)==3\nassert np.allclose(model.layers[1].get_weights()[0][2], w2v.vectors[0])'))
+          else:
+              n.cells.append(nbformat.v4.new_code_cell("assert len(rewards)==100000\nassert Path('images/cartpole-balance.gif').stat().st_size>0".replace("Path(","__import__('pathlib').Path(")))
+          NotebookClient(n,kernel_name='python3',timeout=1200,resources={'metadata':{'path':str(path.parent)}}).execute()
+          errors=[o for c in n.cells for o in c.get('outputs',[]) if o.output_type=='error']
+          assert not errors,errors
+          print('FIX_VERIFIED',name,'all cells; embeddings training uses two real batches per model' if name=='embeddings' else 'full 100000-episode training and GIF generation')
+          PY
