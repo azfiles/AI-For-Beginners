@@ -147,7 +147,7 @@ for source,path in files.items():
                 code="".join(cell.get("source",[]))
                 body+=render(code,source) if cell["cell_type"]=="markdown" else "<pre><code>"+html.escape(code)+"</code></pre>" if cell["cell_type"]=="code" else ""
     out=OUT/"pages"/(source+".html");out.parent.mkdir(parents=True,exist_ok=True);out.write_text(shell(name,body,source))
-notebooks='<h1>运行 Notebook</h1><p>每个 Notebook 都提供本地下载；带蓝色“浏览器运行”按钮的课程还能直接在本站执行。</p><div class="legend"><span class="status verified">已验证可运行</span><span class="status testing">验证中 / 完整训练验证中</span><span class="status blocked">需要数据或凭据</span></div><div class="audit-banner"><b>当前验证说明：</b>统一全单元短训练已通过；原始训练规模的完整审计仍在进行。状态会区分两种验证范围。</div><h2>浏览器内运行</h2><p>打开后等待内核就绪，选择「运行 → 运行所有单元格」。修改保存在当前浏览器，请下载 Notebook 备份。</p><div class="notebook-list">'
+notebooks='<h1>运行 Notebook</h1><p>每个 Notebook 都提供本地下载；带蓝色“浏览器运行”按钮的课程还能直接在本站执行。</p><div class="legend"><span class="status verified">已验证可运行</span><span class="status testing">验证中 / 完整训练验证中</span><span class="status blocked">需要数据或凭据</span></div><div class="audit-banner"><b>当前验证说明：</b>完整审计已完成一轮；通过项按当前代码哈希标记。长训练超时或兼容修复后的项目正在复验，受限资源项会单独标出。</div><h2>浏览器内运行</h2><p>打开后等待内核就绪，选择「运行 → 运行所有单元格」。修改保存在当前浏览器，请下载 Notebook 备份。</p><div class="notebook-list">'
 for source in SPECS:
     notebooks+='<article class="notebook-row"><div><h3>'+html.escape(Path(source).stem)+'</h3>'+status_html(source)+(' <small>练习准备代码</small>' if '/lab/' in source else '')+'</div>'+notebook_actions(source,True)+'</article>'
 notebooks+='</div><h2>完整 Python 环境</h2><p>这些 Notebook 使用本机 Python、TensorFlow 或 PyTorch。请按<a href="'+route("site/RUNNING.zh-CN.md")+'">运行说明</a>准备环境。</p><div class="notebook-list">'
