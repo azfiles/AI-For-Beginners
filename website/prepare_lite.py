@@ -27,8 +27,8 @@ def main():
             wheels = sorted((ROOT / 'website/wheels').glob('*.whl'))
             if len(wheels) != 3:
                 raise RuntimeError('Build the three pure-Python expert-system wheels first')
-            bootstrap += 'from urllib.parse import urljoin\nfrom js import location\n'
-            bootstrap += 'await piplite.install([urljoin(str(location.href), \"../files/wheels/\" + name) for name in ' + repr([p.name for p in wheels]) + '])\n'
+            bootstrap += 'from pathlib import Path\n'
+            bootstrap += 'await piplite.install([\"emfs:\" + str((Path(\"../../wheels\") / name).resolve()) for name in ' + repr([p.name for p in wheels]) + '])\n'
         notebook['cells'].insert(0, {'cell_type': 'code', 'metadata': {}, 'execution_count': None, 'outputs': [], 'source': bootstrap.splitlines(True)})
         notebook['cells'].insert(0, {'cell_type': 'markdown', 'metadata': {}, 'source': ['# 浏览器实践\n', '代码在你的浏览器中执行。首次运行需要下载 Python 和依赖包，请等待内核就绪。可拖入本地数据；修改保存在此浏览器，请下载 Notebook 备份。\n']})
         notebook['metadata']['kernelspec'] = {'display_name': 'Python (Pyodide)', 'language': 'python', 'name': 'python'}
