@@ -45,6 +45,21 @@ compatibility_training_steps=[]
 if a.lesson.endswith('_torch'):
  bootstrap+='''import torch
 from itertools import islice
+if %s:
+    import torchvision
+    from torch.utils.data import Dataset
+    class _TinyCIFAR(Dataset):
+        classes=('plane','car','bird','cat','deer','dog','frog','horse','ship','truck')
+        def __init__(self, root, train=True, download=False, transform=None):
+            self.transform=transform
+            self.data=np.zeros((128 if train else 32,32,32,3),dtype=np.uint8)
+            self.targets=(np.arange(len(self.data))%%10).tolist()
+        def __len__(self): return len(self.data)
+        def __getitem__(self,index):
+            from PIL import Image
+            x=Image.fromarray(self.data[index]); y=self.targets[index]
+            return (self.transform(x) if self.transform else x), y
+    torchvision.datasets.CIFAR10=_TinyCIFAR
 original_iterator=torch.utils.data.DataLoader.__iter__
 original_length=torch.utils.data.DataLoader.__len__
 def two_batches(self):
@@ -62,9 +77,19 @@ def checked_step(original):
     return step
 for optimizer_type in (torch.optim.Adam,torch.optim.SGD,torch.optim.RMSprop):
     optimizer_type.step=checked_step(optimizer_type.step)
-'''
+''' % (a.lesson == 'conv_torch')
 else:
  bootstrap+='''import tensorflow as tf
+import os
+# CIFAR notebooks otherwise spend the compatibility-test budget downloading and
+# preprocessing the complete 50k-image corpus. Use a deterministic local fixture
+# for this bounded smoke test; the notebooks themselves still use CIFAR-10.
+if %s:
+    def _tiny_cifar():
+        x=np.zeros((128,32,32,3),dtype=np.uint8)
+        y=np.arange(128,dtype=np.uint8).reshape(-1,1)%10
+        return (x,y),(x[:32],y[:32])
+    tf.keras.datasets.cifar10.load_data=_tiny_cifar
 original_fit=tf.keras.Model.fit
 def limited_fit(self,x,y=None,*args,**kwargs):
     if isinstance(x,tf.data.Dataset):x=x.take(2)
@@ -92,7 +117,7 @@ def checked_apply(self,grads_and_vars,*args,**kwargs):
     compatibility_training_steps.append(type(self).__name__)
     return result
 tf.keras.optimizers.Optimizer.apply_gradients=checked_apply
-'''
+''' % (a.lesson == 'conv_tf')
 n.cells.insert(0,nbformat.v4.new_code_cell(bootstrap))
 n.cells.append(nbformat.v4.new_code_cell("assert compatibility_training_steps, 'No actual training occurred'\nprint('ACTUAL_TRAINING_UPDATES', len(compatibility_training_steps))"))
 result={'path':str(path.relative_to(ROOT)),'scope':'all cells; original data and models, bounded epochs and batches','source_adjustments':changes}
@@ -107,3 +132,4 @@ out=ROOT/'compatibility-results';out.mkdir(exist_ok=True)
 (out/(a.lesson+'.json')).write_text(json.dumps(result,ensure_ascii=False,indent=2))
 print(json.dumps({k:v for k,v in result.items() if k!='source_adjustments'},ensure_ascii=False),flush=True)
 assert result['status']=='passed',result.get('error')
+
