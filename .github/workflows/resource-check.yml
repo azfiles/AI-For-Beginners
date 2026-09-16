@@ -1,28 +1,38 @@
 name: Check original dataset downloads
 on:
   push:
-    paths: ['.github/workflows/resource-check.yml']
+    paths: ['.github/workflows/resource-check.yml', 'site/course_data.py']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
-      - run: |
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: site
+          persist-credentials: false
+      - name: Download, extract and reuse original datasets
+        run: |
           python - <<'PY'
-          import urllib.request, json
-          urls={
-              'PH2':'https://www.dropbox.com/s/k88qukc20ljnbuo/PH2Dataset.rar?dl=1',
-              'NER':'https://www.kaggle.com/api/v1/datasets/download/abhinavwalia95/entity-annotated-corpus',
-              'Body':'https://www.kaggle.com/api/v1/datasets/download/tapakah68/segmentation-full-body-mads-dataset',
-          }
-          for name,url in urls.items():
-              try:
-                  with urllib.request.urlopen(url,timeout=30) as response:
-                      prefix=response.read(16)
-                      print(json.dumps({'resource':name,'status':response.status,'type':response.headers.get('Content-Type'),'size':response.headers.get('Content-Length'),'prefix':prefix.hex()}),flush=True)
-              except Exception as error:
-                  print(json.dumps({'resource':name,'error':str(error)}),flush=True)
+          import csv, json, runpy
+          from pathlib import Path
+          fetch=runpy.run_path('site/course_data.py')['fetch_dataset']
+          ner=fetch('ner')
+          csv_path=next(ner.rglob('ner_dataset.csv'))
+          with csv_path.open(encoding='latin1') as stream:
+              reader=csv.DictReader(stream)
+              assert {'Sentence #','Word','POS','Tag'} <= set(reader.fieldnames)
+              rows=sum(1 for _ in reader)
+          assert rows>1000
+          assert fetch('ner')==ner
+          body=fetch('body')
+          pairs=[p for p in body.rglob('images') if p.is_dir() and (p.parent/'masks').is_dir()]
+          assert pairs, 'No paired images and masks directory'
+          images=list(pairs[0].glob('*'));masks=list((pairs[0].parent/'masks').glob('*'))
+          assert len(images)==len(masks)>0
+          assert fetch('body')==body
+          print(json.dumps({'ner_rows':rows,'body_images':len(images),'body_masks':len(masks),'cache_reused':True}))
           PY
