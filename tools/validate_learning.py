@@ -17,7 +17,7 @@ if a.one:
         if cell.cell_type=="code" and cell.source.strip():count+=1
         if a.progress:Path(a.progress).write_text(json.dumps({"executed_cells":count,"cell_index":index}))
     try:
-        client=NotebookClient(notebook,timeout=None,allow_errors=False,
+        client=NotebookClient(notebook,kernel_name="python3",timeout=None,allow_errors=False,
             resources={"metadata":{"path":str(path.parent)}},on_cell_executed=record)
         client.execute()
         errors=[o for c in notebook.cells for o in c.get("outputs",[]) if o.output_type=="error"]
