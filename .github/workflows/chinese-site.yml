@@ -1,7 +1,7 @@
 name: Build Chinese learning site
 on:
   push:
-    branches: [main]
+    branches: [main, codex/gan-compatibility]
     paths: ['website/**', 'site/**', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
   workflow_dispatch:
 permissions:
