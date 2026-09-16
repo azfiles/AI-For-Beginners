@@ -8,7 +8,8 @@ from prepare_lite import SPECS
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/"site-dist";ZH="translations/zh-CN/"
 OUT.mkdir(exist_ok=True)
 REPO="https://github.com/azfiles/AI-For-Beginners"
-VALIDATION=json.loads((ROOT/"website/validation-status.json").read_text())["files"]
+_validation_file = ROOT / "website/validation-status.json"
+VALIDATION = json.loads(_validation_file.read_text())["files"] if _validation_file.exists() else {}
 REV=subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
 tracked=subprocess.check_output(["git","ls-files"],cwd=ROOT,text=True).splitlines()
 files={key:ROOT/key for key in tracked if (key.startswith(("lessons/","examples/")) and "/translations/" not in key and Path(key).suffix in (".md",".ipynb",".py")) or (key.startswith(ZH) and key.endswith(".md") and Path(key).name not in ("AGENTS.md","CONTRIBUTING.md","SECURITY.md")) or key in ("site/RUNNING.zh-CN.md", "site/VALIDATION.zh-CN.md")}
