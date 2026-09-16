@@ -36,6 +36,8 @@ def plot_results(hist):
     plt.show()
 
 def display_dataset(dataset, labels=None, n=10, classes=None):
+    # Keep the helper safe for small validation batches as well as full datasets.
+    n = min(n, len(dataset))
     fig,ax = plt.subplots(1,n,figsize=(15,3))
     for i in range(n):
         ax[i].imshow(dataset[i])
@@ -84,3 +86,4 @@ def load_cats_dogs_dataset(batch_size=64):
         batch_size = batch_size
     )
     return ds_train,ds_test
+

@@ -1,8 +1,8 @@
 name: Chinese curriculum execution audit
 on:
   push:
-    branches: [main, codex/gan-compatibility]
-    paths: ['tools/**', 'site/**', 'lessons/**', 'examples/**', '.github/workflows/chinese-learning.yml']
+    branches: [main, codex/gan-compatibility, codex/symbolic-browser]
+    paths: ['tools/validate_learning.py', 'site/**', '!site/*.md', 'lessons/**', 'examples/**', '.github/workflows/chinese-learning.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,6 +13,10 @@ jobs:
   execution:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,15 +33,55 @@ jobs:
       - name: Install CPU framework and recorded core environment
         run: |
           python -m pip install torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cpu
-          python -m pip install -r site/requirements-learning.txt
           python -m pip install -r site/requirements-advanced.txt
-      - name: Execute all curriculum notebooks and beginner scripts
-        run: python tools/validate_learning.py --workers 4 --timeout 600
+      - name: Execute original notebooks in a separate runner per shard
+        run: python tools/validate_learning.py --workers 1 --timeout 900 --shard-index ${{ matrix.shard }} --shard-count 6
       - name: Preserve execution results even when lessons fail
         if: always()
         uses: actions/upload-artifact@v4
         with:
+          name: learning-execution-shard-${{ matrix.shard }}
+          path: validation/
+          if-no-files-found: error
+          retention-days: 30
+  report:
+    needs: execution
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: learning-execution-shard-*
+          path: validation
+          merge-multiple: true
+      - name: Aggregate every result without treating timeouts as passes
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, os
+          paths=sorted(Path('validation').glob('shard-*/results.json'))
+          assert len(paths)==6, f'Missing shards: {len(paths)}/6'
+          rows=[row for path in paths for row in json.loads(path.read_text())]
+          assert len(rows)==57 and len({r['path'] for r in rows})==57, 'Incomplete or duplicate curriculum coverage'
+          Path('validation/results.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2))
+          Path('validation/provenance.json').write_text(json.dumps({'commit':os.environ['GITHUB_SHA'],'timeout_seconds':900,'shards':6}))
+          counts={s:sum(r['status']==s for r in rows) for s in sorted({r['status'] for r in rows})}
+          print(json.dumps(counts))
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('| Status | Count |\n| --- | ---: |\n')
+              for key,value in counts.items():out.write(f'| {key} | {value} |\n')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
           name: learning-execution-report
           path: validation/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
+      - name: Check lesson acceptance status
+        run: |
+          python - <<'PY'
+          import json
+          rows=json.load(open('validation/results.json'))
+          assert all(r['status'] in ('passed','no_code') for r in rows if r['category'] in ('lesson','script')), 'Some lessons remain failed or unverified; see retained report'
+          PY
