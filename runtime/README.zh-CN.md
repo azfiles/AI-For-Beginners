@@ -1,6 +1,6 @@
 # 本机 Notebook 环境
 
-浏览器兼容课程可直接在中文版 Site 中运行。PyTorch、TensorFlow 等完整 Python 课程使用此本机环境：代码、模型和数据都留在你的机器上。当前配置面向 Linux x86_64 CPU；其他架构与 GPU 配置需单独验证。
+浏览器兼容课程可直接在中文版 Site 中运行。PyTorch、TensorFlow 等完整 Python 课程使用此本机环境：代码、模型和数据都留在你的机器上。环境使用 Python 3.11（TensorFlow Text 2.17 提供对应安装包）。当前配置面向 Linux x86_64 CPU；其他架构与 GPU 配置需单独验证。
 
 ## 启动
 

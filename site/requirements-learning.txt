@@ -1,4 +1,4 @@
-# Core learning environment, Python 3.12. Tested on Linux CPU.
+# Core learning environment, Python 3.11. Tested on Linux CPU.
 numpy==1.26.4
 matplotlib==3.10.8
 scikit-learn==1.8.0

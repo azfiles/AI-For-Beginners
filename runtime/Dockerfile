@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 RUN apt-get update && apt-get install -y --no-install-recommends git curl ca-certificates build-essential libgomp1 default-jre-headless && rm -rf /var/lib/apt/lists/*
 COPY site/requirements-learning.txt site/requirements-advanced.txt /opt/requirements/
 RUN python -m pip install --no-cache-dir torch==2.2.2 torchvision==0.17.2 --index-url https://download.pytorch.org/whl/cpu
