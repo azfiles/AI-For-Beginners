@@ -42,6 +42,10 @@ def resolve(url,source):
     if path==".":return "/"
     if path.startswith(ZH) and not (ROOT/path).is_file():path=path[len(ZH):]
     if path=="lessons/4-ComputerVision/11-ObjectDetection/lab/PASCAL VOC":return "https://host.robots.ox.ac.uk/pascal/VOC/"
+    # Translated pages can retain a translations/zh-CN prefix in relative links.
+    # Normalize it before matching the browser-supported source Notebook.
+    if "lessons/" in path and path[path.index("lessons/"):] in SPECS:
+        path = path[path.index("lessons/"):]
     path=fixes.get(path,path)
     # Point curriculum links at the browser kernel when a Pyodide copy exists.
     # Keep the explicit download button on Notebook pages for exporting work.
