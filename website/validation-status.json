@@ -1,0 +1,425 @@
+{
+  "full_audit": {
+    "run": "35041992690",
+    "commit": "3db0d467761932c78e356a0ca1a3f9220521845a",
+    "timeout_seconds": 900,
+    "shards": 6
+  },
+  "files": {
+    "examples/01-hello-ai-world.py": {
+      "full_status": "passed",
+      "category": "script",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": null
+    },
+    "examples/02-simple-neural-network.py": {
+      "full_status": "passed",
+      "category": "script",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": null
+    },
+    "examples/03-image-classifier.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "57be59868132f73c519cddc5b431c7c7c2b5ffd0239620c1f9ac30d067ccf0f7"
+    },
+    "examples/04-text-sentiment.py": {
+      "full_status": "passed",
+      "category": "script",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": null
+    },
+    "lessons/2-Symbolic/Animals.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "89f8955d6647c5b7389054f80979d7c13146a79c05c096e69a3a45ddbe33f0b2"
+    },
+    "lessons/2-Symbolic/FamilyOntology.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "2cca79a1200f508f0aa7928f396541700a72fd82386669063e668389f0238f83"
+    },
+    "lessons/2-Symbolic/MSConceptGraph.ipynb": {
+      "full_status": "failed",
+      "category": "lesson",
+      "label": "未通过",
+      "note": "需要 NEWSAPI_KEY 或本地标题文件；概念查询仍需网络",
+      "code_sha256": "25c48e75a84a4fb6fbcfa6fa171c9783aadca571415507edab388ff1b5bb2b25"
+    },
+    "lessons/3-NeuralNetworks/03-Perceptron/Perceptron.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "0599b37264bf187727234210b409e93bd168a07af8112450c5a234cbf3e0257e"
+    },
+    "lessons/3-NeuralNetworks/03-Perceptron/lab/PerceptronMultiClass.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "4fe3021210c778fa963f0f7ff78e750b1352fb1abcc217818769150a7046ae6b"
+    },
+    "lessons/3-NeuralNetworks/04-OwnFramework/OwnFramework.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "aa197d5d94c26e89ffb8a1822d50184f66548cd61faff2b761b4c55c5c145cfe"
+    },
+    "lessons/3-NeuralNetworks/04-OwnFramework/lab/MyFW_MNIST.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "ee1eac4a160d6de2902219a370d947a20d1e15b08b3c163d442c27ee11c144a7"
+    },
+    "lessons/3-NeuralNetworks/05-Frameworks/IntroKeras.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "b518c50d902bad84a14d489cf69791dac650bef9911d8339406d4020cdc818dd"
+    },
+    "lessons/3-NeuralNetworks/05-Frameworks/IntroKerasTF.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "2b05221293d527f5938932bd2bfa8ad9f0ffa695b248f1eff0b04bd34fc6128e"
+    },
+    "lessons/3-NeuralNetworks/05-Frameworks/IntroPyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "6c8c1203c46d5ae8643811783896867d1bd110e1346dab238965938011180549"
+    },
+    "lessons/3-NeuralNetworks/05-Frameworks/lab/LabFrameworks.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "402a938693e38d927146620b753146c814e4e5d622397cd566bc8cbf6e6de6ca"
+    },
+    "lessons/4-ComputerVision/06-IntroCV/OpenCV.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "1d89a557bed4fbe99516b36d59c419e2161b648e50c364e0ba3944a8864afcae"
+    },
+    "lessons/4-ComputerVision/06-IntroCV/lab/MovementDetection.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "827c1157c2b0e9a658e0ab45b1e8fd29b86645aad041d6b788de5baa60459551"
+    },
+    "lessons/4-ComputerVision/07-ConvNets/ConvNetsPyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "71a019b83d7853da2c30f1232680c25854d79a6062d42b6d1f8cb8b51b17bbbf"
+    },
+    "lessons/4-ComputerVision/07-ConvNets/ConvNetsTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "844965d49992c37c2d67f3a1cf921e80d3bb1649840a63b350f17e1632d0245c"
+    },
+    "lessons/4-ComputerVision/07-ConvNets/lab/PetFaces.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "d5a440aa32ea29ceeaa78f1b1f3d937fe694006e9bcd2d830b080b62710e3b57"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/AdversarialCat_TF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "82ad193a2a90ee3994b5159c8816620edc0e7e8080947d45087b32c702a20719"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/Dropout.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "3826e32be475236d0b1fab11a8dc478c90ac8144560b4b0d00bcb0a9a5662a9c"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningPyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "8055e987cfae6165ad860f4b6b3a599d2614027cce4bf5dc9b06b4ed9da38f7e"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "c5e2ff05f0e18b8cf90e6aa7b29ffd7cf62fba970e93a049d81043f007a38ec5"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/lab/OxfordPets.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "7c40479064a994068c12db91ce2b71d797f447a6bb34700d0bb9c430674a9799"
+    },
+    "lessons/4-ComputerVision/09-Autoencoders/AutoEncodersPyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "9bc3a9cfb2d2a124e64d497a2a3edf32ddda4fbbead3a34e01ca8acb4521c370"
+    },
+    "lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "全单元；128 张真实图片、每条训练路径 1 轮通过",
+      "code_sha256": "9c7322ac2ca97913871ac64b8122518fd440269971d04e9106ba06574d86bb45",
+      "short_test": {
+        "scope": "全单元；128 张真实图片、每条训练路径 1 轮",
+        "run": "34982157923"
+      }
+    },
+    "lessons/4-ComputerVision/10-GANs/GANPyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "b859ffbd3330e23fffe9e5dd21192b5d6deec3d2a67075232500891c10a3071d"
+    },
+    "lessons/4-ComputerVision/10-GANs/GANTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "两种架构的短训练通过",
+      "code_sha256": "83347e88fa96f5d5b577421ec70daad150a964b3d5fac6f8a53470a8bd666dcd",
+      "short_test": {
+        "scope": "两种架构的短训练",
+        "run": "34920542596"
+      }
+    },
+    "lessons/4-ComputerVision/10-GANs/StyleTransfer.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "fc616287614604c78ee59388616e841aaf29ffcb5a11d2baec0e89a60057e257"
+    },
+    "lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "893260e6bd60e684e3395d02c044cd8be14c692b4cce77b259851221170a48b8"
+    },
+    "lessons/4-ComputerVision/11-ObjectDetection/ObjectDetection.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "bf7ad71f945dc8b5192c8a5f4b5cb64d0bf5cae3c1fecbd98dee3d5db64edd1d"
+    },
+    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb": {
+      "full_status": "failed",
+      "category": "lesson",
+      "label": "未通过",
+      "note": "需要登记获取 PH2 数据，并设置 PH2_DATA_DIR；尚未验证",
+      "code_sha256": "ae30dc81faee3db2800f0ddd898bb97daeb4c78de702feb4a5a0f2e38a5b7cba"
+    },
+    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb": {
+      "full_status": "failed",
+      "category": "lesson",
+      "label": "未通过",
+      "note": "需要登记获取 PH2 数据，并设置 PH2_DATA_DIR；尚未验证",
+      "code_sha256": "d5549f01997ddede584a079bce436846bc52acbcc00889d2866f17d6f68e0751"
+    },
+    "lessons/4-ComputerVision/12-Segmentation/lab/BodySegmentation.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "b8b2ec6cf98409f1c9523e9a30768224a7f71ac43092a7ff1d3aa854a1fb22f7"
+    },
+    "lessons/5-NLP/13-TextRep/TextRepresentationPyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "ecd3394016754b3f9fed262afa959e2828243f3bcd19eafc673fff8b756ed5b2"
+    },
+    "lessons/5-NLP/13-TextRep/TextRepresentationTF.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "5f8a3fab7b9a0462f5c5e49da2daa60f78af37d18426ac999b62d89554a120b2"
+    },
+    "lessons/5-NLP/14-Embeddings/EmbeddingsPyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "8b2e0a2f80a6523ec66d21351a535a5b9d9438d6e0b8139a4ddd14741b6c8c3a"
+    },
+    "lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb": {
+      "full_status": "failed",
+      "category": "lesson",
+      "label": "未通过",
+      "note": "兼容修复复测中",
+      "code_sha256": "6eba5e911b2de5ec655631445c83a0162a43dfca1e45ce7ab4412a172f48331f"
+    },
+    "lessons/5-NLP/15-LanguageModeling/CBoW-PyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "b25e71d1da815e024a953a0150bbde8ad74b4190b888045bfd001e15061cc484"
+    },
+    "lessons/5-NLP/15-LanguageModeling/CBoW-TF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "5844ea7ab78b7405a12839ea35daf4b0ce893e2d22e0133979bacee064711149"
+    },
+    "lessons/5-NLP/16-RNN/RNNPyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "6ee68a8713b8417b61a538d7d5b5db878ff0687f21c2e6f97c3f499d2c477b9d"
+    },
+    "lessons/5-NLP/16-RNN/RNNTF.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "b19060a45208d9abf96477d4fdb5f04169244cee1f2ec352d972cf8eaa2125bd"
+    },
+    "lessons/5-NLP/17-GenerativeNetworks/GenerativePyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "91e1aa5d1b31f9bd6868688a010bc6c5ea1d3a3b08db4c35c23d3833769cb2f8"
+    },
+    "lessons/5-NLP/17-GenerativeNetworks/GenerativeTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "30d85089a1652669f74036580d7fc5981de6e2762aab71952afa3671b0c40165"
+    },
+    "lessons/5-NLP/18-Transformers/TransformersPyTorch.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "",
+      "code_sha256": "6db5f9caf652c766e46894cfb3913cbf6625892cc2ce6804e85aa87c23549287"
+    },
+    "lessons/5-NLP/18-Transformers/TransformersTF.ipynb": {
+      "full_status": "timeout",
+      "category": "lesson",
+      "label": "长训练超时，未验证",
+      "note": "全单元；四条训练路径、每次两个真实批次通过",
+      "code_sha256": "8e279c401988cc67faf2e1787e827c04c8eb1b66cedb56688230ab4303401f59",
+      "short_test": {
+        "scope": "全单元；四条训练路径、每次两个真实批次",
+        "run": "35040739031"
+      }
+    },
+    "lessons/5-NLP/19-NER/NER-TF.ipynb": {
+      "full_status": "failed",
+      "category": "lesson",
+      "label": "未通过",
+      "note": "修复后全单元；64 个真实句子、1 轮训练通过",
+      "code_sha256": "4960d3d55d58b2894d9c2711ab3ae22b9af55c905fc4ada5ea46135a904ecebb",
+      "short_test": {
+        "scope": "修复后全单元；64 个真实句子、1 轮训练",
+        "run": "35042070696"
+      }
+    },
+    "lessons/5-NLP/20-LangModels/GPT-PyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "bf3e470c9b0856a8a4d6ad614f97c16c779dc9bb476e7d36ae9694e8cca9c723"
+    },
+    "lessons/6-Other/21-GeneticAlgorithms/Diophantine.ipynb": {
+      "full_status": "no_code",
+      "category": "lesson",
+      "label": "仅说明，无代码",
+      "note": "",
+      "code_sha256": null
+    },
+    "lessons/6-Other/21-GeneticAlgorithms/Genetic.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "2aafe03c917d166513332b2be36e49ce0dc04bbf03ce5e244d1aec6a1bd44a0c"
+    },
+    "lessons/6-Other/22-DeepRL/CartPole-RL-PyTorch.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "4b84ae2ccf66035132c05fb077eda3ddded6e112c1155bf5df800c05665b71bb"
+    },
+    "lessons/6-Other/22-DeepRL/CartPole-RL-TF.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "cd265d2b035b87af58358b789ca297fd28375a96e3f170bbed9f102e047680ec"
+    },
+    "lessons/6-Other/22-DeepRL/lab/MountainCar.ipynb": {
+      "full_status": "passed",
+      "category": "exercise",
+      "label": "练习准备代码通过，题目需自行完成",
+      "note": "",
+      "code_sha256": "989ae6a19e495a20a38773abdfa28dea837f6ae24eb4479df081488c7a3732dc"
+    },
+    "lessons/6-Other/22-DeepRL/notebook.ipynb": {
+      "full_status": "failed",
+      "category": "experimental",
+      "label": "未通过",
+      "note": "兼容修复复测中",
+      "code_sha256": "1a24e224e0b1f82c0c087c2c3d84c491104729e21ad6bd1510fdf0288440ebf1"
+    },
+    "lessons/6-Other/22-DeepRL/tmp.ipynb": {
+      "full_status": "passed",
+      "category": "experimental",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "a983478904848899644aede62f245687cc65ff3c66b855c40161982f11f09193"
+    },
+    "lessons/X-Extras/X1-MultiModal/Clip.ipynb": {
+      "full_status": "passed",
+      "category": "lesson",
+      "label": "完整执行通过",
+      "note": "",
+      "code_sha256": "38b08a38aa6d56f6901a935f774e13e92e154a20e23fe943a6437f131a088a8c"
+    }
+  }
+}
