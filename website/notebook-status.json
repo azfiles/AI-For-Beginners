@@ -1,30 +1,78 @@
 {
   "browser_run": "35070286053",
   "short_training_run": "35072489957",
-  "full_audit": {"run": "35072071135", "status": "in_progress"},
+  "full_audit": {
+    "run": "35072071135",
+    "status": "completed_with_findings"
+  },
   "blocked": {
-    "lessons/2-Symbolic/MSConceptGraph.ipynb": {"label": "需要凭据或本地数据", "note": "提供 NEWSAPI_KEY，或用 NEWS_TITLES_JSON 指向本地标题数组；概念查询需要网络"},
-    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb": {"label": "需要受限数据", "note": "登记获取 PH2 数据集，并设置 PH2_DATA_DIR"},
-    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb": {"label": "需要受限数据", "note": "登记获取 PH2 数据集，并设置 PH2_DATA_DIR"}
+    "lessons/2-Symbolic/MSConceptGraph.ipynb": {
+      "label": "需要凭据或本地数据",
+      "note": "提供 NEWSAPI_KEY，或用 NEWS_TITLES_JSON 指向本地标题数组；概念查询需要网络"
+    },
+    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb": {
+      "label": "需要受限数据",
+      "note": "登记获取 PH2 数据集，并设置 PH2_DATA_DIR"
+    },
+    "lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb": {
+      "label": "需要受限数据",
+      "note": "登记获取 PH2 数据集，并设置 PH2_DATA_DIR"
+    }
   },
   "short_verified": {
-    "lessons/4-ComputerVision/07-ConvNets/ConvNetsPyTorch.ipynb": {"scope": "所有单元；原始 CIFAR-10；缩短训练批次"},
-    "lessons/4-ComputerVision/07-ConvNets/ConvNetsTF.ipynb": {"scope": "所有单元；原始 CIFAR-10；缩短训练批次"},
-    "lessons/4-ComputerVision/08-TransferLearning/AdversarialCat_TF.ipynb": {"scope": "所有单元；缩短优化步数"},
-    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningPyTorch.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningTF.ipynb": {"scope": "所有单元；真实数据；解冻后微调回归已通过"},
-    "lessons/4-ComputerVision/09-Autoencoders/AutoEncodersPyTorch.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb": {"scope": "所有单元；128 张真实图片；每条训练路径 1 轮"},
-    "lessons/4-ComputerVision/10-GANs/GANPyTorch.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/4-ComputerVision/10-GANs/GANTF.ipynb": {"scope": "两种架构的短训练"},
-    "lessons/4-ComputerVision/10-GANs/StyleTransfer.ipynb": {"scope": "所有单元；真实图像；缩短优化步数"},
-    "lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb": {"scope": "所有单元；真实数据；三条训练路径"},
-    "lessons/5-NLP/15-LanguageModeling/CBoW-PyTorch.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/5-NLP/15-LanguageModeling/CBoW-TF.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/5-NLP/17-GenerativeNetworks/GenerativeTF.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/5-NLP/18-Transformers/TransformersPyTorch.ipynb": {"scope": "所有单元；真实数据；缩短训练批次"},
-    "lessons/5-NLP/18-Transformers/TransformersTF.ipynb": {"scope": "所有单元；四条训练路径；每次两个真实批次"},
-    "lessons/5-NLP/19-NER/NER-TF.ipynb": {"scope": "所有单元；64 个真实句子；1 轮训练"},
-    "lessons/6-Other/22-DeepRL/notebook.ipynb": {"scope": "原 100,000 回合训练与 GIF 输出"}
+    "lessons/4-ComputerVision/07-ConvNets/ConvNetsPyTorch.ipynb": {
+      "scope": "所有单元；原始 CIFAR-10；缩短训练批次"
+    },
+    "lessons/4-ComputerVision/07-ConvNets/ConvNetsTF.ipynb": {
+      "scope": "所有单元；原始 CIFAR-10；缩短训练批次"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/AdversarialCat_TF.ipynb": {
+      "scope": "所有单元；缩短优化步数"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningPyTorch.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/4-ComputerVision/08-TransferLearning/TransferLearningTF.ipynb": {
+      "scope": "所有单元；真实数据；解冻后微调回归已通过"
+    },
+    "lessons/4-ComputerVision/09-Autoencoders/AutoEncodersPyTorch.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb": {
+      "scope": "所有单元；128 张真实图片；每条训练路径 1 轮"
+    },
+    "lessons/4-ComputerVision/10-GANs/GANPyTorch.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/4-ComputerVision/10-GANs/GANTF.ipynb": {
+      "scope": "两种架构的短训练"
+    },
+    "lessons/4-ComputerVision/10-GANs/StyleTransfer.ipynb": {
+      "scope": "所有单元；真实图像；缩短优化步数"
+    },
+    "lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb": {
+      "scope": "所有单元；真实数据；三条训练路径"
+    },
+    "lessons/5-NLP/15-LanguageModeling/CBoW-PyTorch.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/5-NLP/15-LanguageModeling/CBoW-TF.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/5-NLP/17-GenerativeNetworks/GenerativeTF.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/5-NLP/18-Transformers/TransformersPyTorch.ipynb": {
+      "scope": "所有单元；真实数据；缩短训练批次"
+    },
+    "lessons/5-NLP/18-Transformers/TransformersTF.ipynb": {
+      "scope": "所有单元；四条训练路径；每次两个真实批次"
+    },
+    "lessons/5-NLP/19-NER/NER-TF.ipynb": {
+      "scope": "所有单元；64 个真实句子；1 轮训练"
+    },
+    "lessons/6-Other/22-DeepRL/notebook.ipynb": {
+      "scope": "原 100,000 回合训练与 GIF 输出"
+    }
   }
 }
