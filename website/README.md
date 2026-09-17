@@ -8,6 +8,8 @@
 
 执行 `python tools/check_repository_contract.py` 检查声明，再执行 `python website/build.py`，输出到 `site-dist/`。当前构建使用根路径，部署目标应以站点根目录提供 `index.html`，不能直接放在未配置前缀的子路径下。
 
+个人学习功能由 `learning.js` / `learning.css` 提供。构建器会为页面写入课程身份与总数；笔记和完成状态仅存于浏览器 `localStorage`，导出/导入用于备份和跨浏览器迁移。此功能不依赖账号、后端或运行时密钥。
+
 既有 ChatGPT Site 已登记，项目 ID 为 `appgprj_6aa7b84ff31c8191a7e0c4a8b19ac8a0`，已发布：https://ai-beginners-zh-alex.ironman26.chatgpt.site。后续更新复用这一项目；不要新建重复站点。其源仓库推送和发布必须使用 Sites 原生流程，不能将本 GitHub 提交 SHA 冒充 Sites 源仓库的提交。
 
 仓库与部署链路见 `docs/ARCHITECTURE.zh-CN.md`，自动化职责见 `docs/GITHUB_ACTIONS.zh-CN.md`。

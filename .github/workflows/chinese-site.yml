@@ -1,7 +1,9 @@
 name: Build Chinese learning site
 on:
   push:
-    branches: [main, codex/gan-compatibility]
+    branches: [main]
+    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
+  pull_request:
     paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
   workflow_dispatch:
 permissions:

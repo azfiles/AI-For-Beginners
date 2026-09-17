@@ -30,6 +30,8 @@ def main() -> None:
         "site/VALIDATION.zh-CN.md",
         "runtime/README.zh-CN.md",
         "website/build.py",
+        "website/learning.css",
+        "website/learning.js",
         "website/notebook-status.json",
         "website/validation-status.json",
     ]

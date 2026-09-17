@@ -29,6 +29,12 @@ flowchart TD
 
 完整 Python 路径由 `runtime/` 提供。Docker 卷复用模型和数据缓存，但不会自动分发受限数据或凭据。
 
+## 个人学习状态
+
+课程页加载 `website/learning.js` 和 `website/learning.css`。笔记与完成状态使用版本化的 `localStorage` 记录，包含页面路径、所选原文、锚点、用户笔记和时间；导入时进行字段与站内路径校验，显示用户内容时使用文本节点，避免把备份内容当作 HTML 执行。
+
+这是无账号、无后端的浏览器本地能力：站点服务器不接收个人学习数据，跨浏览器或跨设备迁移依赖 JSON 导出/导入。课程总数由构建器写入页面数据属性，进度只统计课程页面。
+
 ## 状态模型
 
 `website/validation-status.json` 保存完整审计及代码摘要。构建时，如果 Notebook 的代码摘要已经变化，旧的完整通过证据不会继续显示。`website/notebook-status.json` 叠加浏览器验证、明确范围的短训练验证，以及需要凭据或受限数据的条件。
