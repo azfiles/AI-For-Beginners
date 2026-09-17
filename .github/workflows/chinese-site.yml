@@ -68,3 +68,4 @@ jobs:
           name: chinese-learning-site
           path: site-app-dist/
           retention-days: 30
+          include-hidden-files: true
