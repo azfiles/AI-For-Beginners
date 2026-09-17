@@ -1,31 +1,32 @@
-# Notebook 验证交接记录
+# Notebook 当前状态
 
-更新：2026-09-16。以下范围不可互相替代：浏览器执行、原数据短训练、原始训练规模完整执行。
+更新日期：2026-09-17。
 
-## 已验证的修复
+最适合学习者查看的是 Site 的 [Notebook 运行中心](https://ai-beginners-zh-alex.ironman26.chatgpt.site/notebooks.html)。本页说明状态数据如何得出，避免把不同验证范围混为一谈。
 
-- [Scorecard](https://github.com/azfiles/AI-For-Beginners/actions/runs/35071580736) 已通过。根因是旧 v3 artifact 上传组件；只改 artifact 名称未能修复。工作流通过不意味着安全评分中的依赖漏洞已全部处理。
-- [长 Notebook 全单元短训练](https://github.com/azfiles/AI-For-Beginners/actions/runs/35071580708)：12 项中 11 项通过；TransferLearningTF 在本轮发现解冻后优化器不识别新参数的问题。
-- [TransferLearningTF 专项回归](https://github.com/azfiles/AI-For-Beginners/actions/runs/35072071138)：修复后通过。解冻后用新的低学习率 Adam 重新编译，再执行微调。
-- CIFAR 两本 Notebook 使用原始 50,000 张训练图、10,000 张测试图，下载包通过 Keras 官方 SHA-256 校验。短测只缩短训练轮数和批次，没有替换数据。
-- [资源 Notebook](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286115)、[本机运行时](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286191)、[NLP 短测](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286160)、[浏览器执行](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286053)、[符号推理](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286105) 均通过。
-- [Embeddings / DeepRL](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286132) 通过：Embeddings 是真实数据短训练，DeepRL 包含原 100,000 回合与 GIF 输出验证。
+## 已确认的运行能力
 
-## 更正历史结论
+- 浏览器运行：7 个 JupyterLite 入口已在真实 Chromium 中逐单元验证。[运行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/35070286053)
+- 统一短训练：18 个长训练或兼容性项目完成了真实数据、真实模型路径的缩短运行。[运行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/35072489957)
+- 完整审计：一轮分片审计已经结束并产出发现，长训练超时和修复后项目不会自动标成完整通过。[运行记录](https://github.com/azfiles/AI-For-Beginners/actions/runs/35072071135)
 
-`f7393577` 的六项 TensorFlow 短测在引导代码字符串格式化时失败，未执行到课程代码，不应解释为训练超时。该脚本错误已撤回；此前两个使用合成 CIFAR 数据的通过记录不计入原数据验收。
+完整审计、短训练、浏览器运行和练习准备代码是四种不同证据。绿色状态只表示状态标签中写明的范围已经通过。
 
-旧审计被新提交取消后，可能没有完整结果文件。报告工作流现在跳过由取消事件触发的聚合；真实失败审计仍保留失败，未采用 continue-on-error 将其变绿。
+## 需要用户提供条件
 
-## 未完成 / 外部条件
+| Notebook | 条件 |
+| --- | --- |
+| `lessons/2-Symbolic/MSConceptGraph.ipynb` | `NEWSAPI_KEY`，或 `NEWS_TITLES_JSON` 本地标题数组；概念查询仍需网络 |
+| `lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationPytorch.ipynb` | 登记获取 PH2 数据并设置 `PH2_DATA_DIR` |
+| `lessons/4-ComputerVision/12-Segmentation/SemanticSegmentationTF.ipynb` | 登记获取 PH2 数据并设置 `PH2_DATA_DIR` |
 
-- [新的原始规模全量审计](https://github.com/azfiles/AI-For-Beginners/actions/runs/35072071135) 尚需等待终态；短训练结果不能替代它。历史的 35 通过、15 超时、6 失败、1 无代码不是当前源码的新验收结果。
-- SemanticSegmentationTF / SemanticSegmentationPytorch 需要合法取得的 PH2 数据，设置 `PH2_DATA_DIR`；尚未完成真实数据训练验证。
-- MSConceptGraph 需要 `NEWS_TITLES_JSON` 本地标题数组或 `NEWSAPI_KEY`；概念查询仍依赖外部网络。不要在聊天或仓库中提交密钥。
-- 完整 TensorFlow / PyTorch 课程使用本机运行时；Site 的 JupyterLite 不等于能在浏览器执行全部课程。
+PH2 受原始数据条款约束，仓库和 Site 不重新分发。凭据也不会写入 Notebook 或 GitHub Actions。
 
-## CIFAR 缓存预备
+## 机器可读状态
 
-在检出仓库的根目录运行 `python tools/prepare_cifar.py`。已有原始压缩包时设置 `CIFAR10_ARCHIVE` 为其路径。脚本只接受与 Keras 官方 SHA-256 一致的包，同时预备 Keras 与 torchvision 的课程缓存。运行需 Python 3.11.8+ 与 curl。
+- `website/notebook-status.json` 保存当前浏览器运行、短训练和受限资源状态；
+- `website/validation-status.json` 保存完整审计结果与 Notebook 代码摘要；
+- `website/build.py` 只在记录摘要与当前代码一致时显示“完整执行通过”；
+- `tools/check_repository_contract.py` 检查这些清单中的文件和浏览器入口仍然存在且互不冲突。
 
-后续状态以对应提交的 Actions 结果为准。长 Notebook 工作流现在也会在课程源码或依赖变更后触发，避免仅修改 Notebook 时没有回归。
+逐文件信息见 [site/VALIDATION.zh-CN.md](site/VALIDATION.zh-CN.md)，环境准备见 [site/RUNNING.zh-CN.md](site/RUNNING.zh-CN.md)。

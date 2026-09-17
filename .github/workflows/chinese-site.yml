@@ -2,7 +2,7 @@ name: Build Chinese learning site
 on:
   push:
     branches: [main, codex/gan-compatibility]
-    paths: ['website/**', 'site/**', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
+    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -14,8 +14,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
+            README.md
+            CONTRIBUTING.md
+            NOTEBOOK_STATUS.zh-CN.md
+            docs
             website
             site
+            runtime
+            tools
             lessons
             examples
             etc/quiz-app/src/assets/translations
@@ -39,6 +45,8 @@ jobs:
           python -m pip wheel --no-deps --wheel-dir website/wheels experta==1.9.4 frozendict==1.2 schema==0.6.7
           python website/prepare_lite.py
           jupyter lite build --lite-dir website/lite --contents lite-content --output-dir site-dist/lite
+      - name: Verify repository and Site contract
+        run: python tools/check_repository_contract.py
       - name: Build and verify local page links
         run: python website/build.py
       - uses: actions/upload-artifact@v4
