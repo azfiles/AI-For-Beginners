@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "ai-beginners-learning-v1";
+  const API_URL = "/api/learning";
   const body = document.body;
   const main = document.querySelector("main");
   const openButton = document.querySelector("#learning-open");
@@ -14,23 +15,71 @@
     isCourse: body.dataset.coursePage === "true",
   };
   const totalLessons = Number(body.dataset.totalLessons || 0);
-
-  const load = () => {
-    try {
-      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if (value && value.version === 1 && Array.isArray(value.notes) && value.completed) return value;
-    } catch (_) {}
-    return { version: 1, notes: [], completed: {} };
-  };
-  let state = load();
-  const save = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  const id = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const emptyState = () => ({ version: 2, notes: [], completed: {} });
+  const identifier = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const safePath = (value) => typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/";
   const formatDate = (value) => {
     try { return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
     catch (_) { return "未知时间"; }
   };
-  const safePath = (value) => typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/";
   const blocks = () => [...main.querySelectorAll("p,li,h2,h3,blockquote")].filter((element) => !element.closest(".learning-progress-card, .learning-drawer"));
+
+  const normalizeState = (value) => {
+    if (!value || !Array.isArray(value.notes) || !value.completed || Array.isArray(value.completed)) return emptyState();
+    const notes = value.notes.filter((note) => note && typeof note.quote === "string" && typeof note.createdAt === "string").map((note) => ({
+      id: typeof note.id === "string" ? note.id : identifier(),
+      path: safePath(note.path),
+      pageTitle: typeof note.pageTitle === "string" ? note.pageTitle.slice(0, 300) : "课程页面",
+      source: typeof note.source === "string" ? note.source.slice(0, 1000) : "",
+      quote: note.quote.slice(0, 1200),
+      text: typeof note.text === "string" ? note.text.slice(0, 4000) : "",
+      blockIndex: Number.isInteger(note.blockIndex) ? note.blockIndex : -1,
+      anchor: typeof note.anchor === "string" ? note.anchor.slice(0, 300) : "",
+      createdAt: note.createdAt,
+    }));
+    const completed = {};
+    Object.values(value.completed).forEach((entry) => {
+      if (!entry || typeof entry.completedAt !== "string") return;
+      const entryPath = safePath(entry.path);
+      completed[entryPath] = {
+        path: entryPath,
+        title: typeof entry.title === "string" ? entry.title.slice(0, 300) : "课程页面",
+        source: typeof entry.source === "string" ? entry.source.slice(0, 1000) : "",
+        completedAt: entry.completedAt,
+      };
+    });
+    return { version: 2, notes, completed };
+  };
+
+  const loadLocal = () => {
+    try { return normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY) || "null")); }
+    catch (_) { return emptyState(); }
+  };
+  const hasRecords = (value) => value.notes.length > 0 || Object.keys(value.completed).length > 0;
+  const saveLocal = () => localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, notes: state.notes, completed: state.completed }));
+
+  let state = loadLocal();
+  let cloudReady = false;
+  let syncState = "loading";
+  let syncMessage = "正在连接账号…";
+  let revision = 0;
+  let queue = Promise.resolve();
+
+  const request = async (method = "GET", payload) => {
+    const response = await fetch(API_URL, {
+      method,
+      credentials: "same-origin",
+      headers: payload ? { "content-type": "application/json" } : undefined,
+      body: payload ? JSON.stringify(payload) : undefined,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      const error = new Error(data.error || `HTTP ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
+    return data;
+  };
 
   const backdrop = document.createElement("div");
   backdrop.className = "learning-backdrop";
@@ -42,7 +91,7 @@
   drawer.setAttribute("aria-hidden", "true");
   drawer.innerHTML = `
     <div class="learning-drawer-head">
-      <div><span class="learning-eyebrow">仅保存在此浏览器</span><h2>个人学习记录</h2></div>
+      <div><span class="learning-eyebrow" data-learning-sync-state>正在连接账号…</span><h2>个人学习记录</h2></div>
       <button class="learning-icon-button" type="button" data-learning-close aria-label="关闭学习记录">×</button>
     </div>
     <div class="learning-summary" aria-live="polite"></div>
@@ -60,8 +109,9 @@
     <div class="learning-data-actions">
       <button type="button" data-learning-export>导出备份</button>
       <label class="learning-import">导入备份<input type="file" accept="application/json" data-learning-import></label>
+      <button type="button" data-learning-retry hidden>重新同步</button>
     </div>
-    <p class="learning-local-note">笔记与进度使用浏览器本地存储。更换浏览器、设备或清理网站数据前，请先导出备份。</p>`;
+    <p class="learning-local-note" data-learning-storage-note>笔记与进度正在连接你的账号。</p>`;
   document.body.append(backdrop, drawer);
 
   const editor = document.createElement("dialog");
@@ -82,7 +132,22 @@
   selectionButton.hidden = true;
   document.body.append(selectionButton);
 
-  let pendingSelection = null;
+  const setSync = (next, message) => {
+    syncState = next;
+    syncMessage = message;
+    const badge = drawer.querySelector("[data-learning-sync-state]");
+    const note = drawer.querySelector("[data-learning-storage-note]");
+    const retry = drawer.querySelector("[data-learning-retry]");
+    badge.textContent = message;
+    badge.dataset.state = next;
+    retry.hidden = next !== "offline";
+    note.textContent = next === "ready"
+      ? "笔记与进度按当前登录用户保存在 Site 数据库，可在其他设备登录后继续学习。"
+      : next === "offline"
+        ? "云端同步暂不可用。新修改已暂存在此浏览器，恢复后可重新同步。"
+        : "正在连接你的账号并读取学习记录。";
+  };
+
   const updateBadge = () => {
     const completed = Object.keys(state.completed).length;
     openButton.querySelector("span").textContent = totalLessons ? `${Math.min(completed, totalLessons)}/${totalLessons}` : `${state.notes.length}`;
@@ -91,15 +156,12 @@
   const renderSummary = () => {
     const completed = Object.keys(state.completed).length;
     const percent = totalLessons ? Math.min(100, Math.round((completed / totalLessons) * 100)) : 0;
-    const summary = drawer.querySelector(".learning-summary");
-    summary.innerHTML = `<div><b>${completed}</b><span>已完成课程</span></div><div><b>${state.notes.length}</b><span>文字笔记</span></div><div><b>${percent}%</b><span>总体进度</span></div>`;
+    drawer.querySelector(".learning-summary").innerHTML = `<div><b>${completed}</b><span>已完成课程</span></div><div><b>${state.notes.length}</b><span>文字笔记</span></div><div><b>${percent}%</b><span>总体进度</span></div>`;
   };
 
   const renderNotes = () => {
     const onlyCurrent = drawer.querySelector("[data-current-page-only]").checked;
-    const notes = [...state.notes]
-      .filter((note) => !onlyCurrent || note.path === page.path)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    const notes = [...state.notes].filter((note) => !onlyCurrent || note.path === page.path).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     const list = drawer.querySelector(".learning-note-list");
     list.replaceChildren();
     if (!notes.length) {
@@ -129,7 +191,7 @@
       remove.addEventListener("click", () => {
         if (!confirm("删除这条笔记？")) return;
         state.notes = state.notes.filter((item) => item.id !== note.id);
-        save();
+        persist({ action: "delete_note", id: note.id });
         renderAll();
         markAnnotatedBlocks();
       });
@@ -163,7 +225,7 @@
       remove.textContent = "撤销";
       remove.addEventListener("click", () => {
         delete state.completed[entry.path];
-        save();
+        persist({ action: "set_progress", completed: false, entry });
         renderAll();
         renderPageProgress();
       });
@@ -177,6 +239,55 @@
     renderSummary();
     renderNotes();
     renderProgress();
+  };
+
+  const persist = (operation) => {
+    const currentRevision = ++revision;
+    saveLocal();
+    setSync("loading", "正在同步…");
+    queue = queue.then(async () => {
+      if (!cloudReady) throw new Error("cloud unavailable");
+      await request("POST", operation);
+      if (revision === currentRevision) localStorage.removeItem(STORAGE_KEY);
+      setSync("ready", "已同步至你的账号");
+    }).catch(() => {
+      cloudReady = false;
+      saveLocal();
+      setSync("offline", "等待重新同步");
+    });
+  };
+
+  const mergeStates = (base, incoming) => {
+    const notes = new Map(base.notes.map((note) => [note.id, note]));
+    incoming.notes.forEach((note) => notes.set(note.id, note));
+    return { version: 2, notes: [...notes.values()], completed: { ...base.completed, ...incoming.completed } };
+  };
+
+  const connectCloud = async () => {
+    setSync("loading", "正在连接账号…");
+    const local = loadLocal();
+    try {
+      const remote = normalizeState(await request());
+      cloudReady = true;
+      if (hasRecords(local)) {
+        await request("POST", { action: "merge", notes: local.notes, completed: local.completed });
+        state = mergeStates(remote, local);
+        localStorage.removeItem(STORAGE_KEY);
+      } else {
+        state = remote;
+      }
+      setSync("ready", hasRecords(local) ? "本地记录已迁移并同步" : "已同步至你的账号");
+      renderAll();
+      renderPageProgress();
+      markAnnotatedBlocks();
+    } catch (_) {
+      cloudReady = false;
+      state = local;
+      setSync("offline", "等待重新同步");
+      renderAll();
+      renderPageProgress();
+      markAnnotatedBlocks();
+    }
   };
 
   const openDrawer = () => {
@@ -204,9 +315,10 @@
     const done = Boolean(state.completed[page.path]);
     card.innerHTML = `<div><span>本课学习状态</span><b>${done ? "已完成" : "学习中"}</b></div><button type="button" class="${done ? "is-complete" : ""}">${done ? "撤销完成" : "标记本课已完成"}</button>`;
     card.querySelector("button").addEventListener("click", () => {
+      const entry = state.completed[page.path] || { path: page.path, title: page.title, source: page.source, completedAt: new Date().toISOString() };
       if (done) delete state.completed[page.path];
-      else state.completed[page.path] = { path: page.path, title: page.title, source: page.source, completedAt: new Date().toISOString() };
-      save();
+      else state.completed[page.path] = entry;
+      persist({ action: "set_progress", completed: !done, entry });
       renderAll();
       renderPageProgress();
     });
@@ -236,6 +348,7 @@
     });
   };
 
+  let pendingSelection = null;
   const captureSelection = () => {
     const selection = getSelection();
     if (!selection || selection.isCollapsed || !selection.rangeCount) {
@@ -273,8 +386,8 @@
   });
   editor.addEventListener("close", () => {
     if (editor.returnValue !== "save" || !pendingSelection) return;
-    state.notes.push({
-      id: id(),
+    const note = {
+      id: identifier(),
       path: page.path,
       pageTitle: page.title,
       source: page.source,
@@ -283,10 +396,11 @@
       blockIndex: pendingSelection.blockIndex,
       anchor: pendingSelection.anchor,
       createdAt: new Date().toISOString(),
-    });
+    };
+    state.notes.push(note);
     pendingSelection = null;
     getSelection()?.removeAllRanges();
-    save();
+    persist({ action: "upsert_note", note });
     renderAll();
     markAnnotatedBlocks();
     openDrawer();
@@ -297,8 +411,9 @@
     drawer.querySelectorAll("[data-learning-panel]").forEach((panel) => { panel.hidden = panel.dataset.learningPanel !== tab.dataset.learningTab; });
   }));
   drawer.querySelector("[data-current-page-only]").addEventListener("change", renderNotes);
+  drawer.querySelector("[data-learning-retry]").addEventListener("click", connectCloud);
   drawer.querySelector("[data-learning-export]").addEventListener("click", () => {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ version: 2, notes: state.notes, completed: state.completed }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -310,28 +425,11 @@
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      const imported = JSON.parse(await file.text());
-      if (imported.version !== 1 || !Array.isArray(imported.notes) || !imported.completed || Array.isArray(imported.completed)) throw new Error("invalid backup");
-      if (!confirm("导入将覆盖当前浏览器中的笔记与进度，继续吗？")) return;
-      const notes = imported.notes.filter((note) => note && typeof note.quote === "string" && typeof note.createdAt === "string").map((note) => ({
-        id: typeof note.id === "string" ? note.id : id(),
-        path: safePath(note.path),
-        pageTitle: typeof note.pageTitle === "string" ? note.pageTitle.slice(0, 300) : "课程页面",
-        source: typeof note.source === "string" ? note.source.slice(0, 1000) : "",
-        quote: note.quote.slice(0, 1200),
-        text: typeof note.text === "string" ? note.text.slice(0, 4000) : "",
-        blockIndex: Number.isInteger(note.blockIndex) ? note.blockIndex : -1,
-        anchor: typeof note.anchor === "string" ? note.anchor.slice(0, 300) : "",
-        createdAt: note.createdAt,
-      }));
-      const completed = {};
-      Object.values(imported.completed).forEach((entry) => {
-        if (!entry || typeof entry.completedAt !== "string") return;
-        const path = safePath(entry.path);
-        completed[path] = { path, title: typeof entry.title === "string" ? entry.title.slice(0, 300) : "课程页面", source: typeof entry.source === "string" ? entry.source.slice(0, 1000) : "", completedAt: entry.completedAt };
-      });
-      state = { version: 1, notes, completed };
-      save();
+      const imported = normalizeState(JSON.parse(await file.text()));
+      if (!hasRecords(imported)) throw new Error("empty or invalid backup");
+      if (!confirm("将备份合并到当前账号的笔记与进度，继续吗？")) return;
+      state = mergeStates(state, imported);
+      persist({ action: "merge", notes: imported.notes, completed: imported.completed });
       renderAll();
       renderPageProgress();
       markAnnotatedBlocks();
@@ -357,4 +455,6 @@
   updateBadge();
   renderPageProgress();
   markAnnotatedBlocks();
+  setSync(syncState, syncMessage);
+  connectCloud();
 })();

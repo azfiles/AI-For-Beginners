@@ -2,9 +2,9 @@ name: Build Chinese learning site
 on:
   push:
     branches: [main]
-    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
+    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site-app/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
   pull_request:
-    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
+    paths: ['README.md', 'CONTRIBUTING.md', 'NOTEBOOK_STATUS.zh-CN.md', 'docs/**', 'website/**', 'site-app/**', 'site/**', 'runtime/**', 'tools/check_repository_contract.py', 'lessons/**', 'examples/**', 'translations/zh-CN/**', '.github/workflows/chinese-site.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -22,6 +22,7 @@ jobs:
             docs
             website
             site
+            site-app
             runtime
             tools
             lessons
@@ -32,6 +33,9 @@ jobs:
             translated_images/zh-CN
             translations/zh-CN
           persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -51,8 +55,16 @@ jobs:
         run: python tools/check_repository_contract.py
       - name: Build and verify local page links
         run: python website/build.py
+      - name: Verify personalized learning service
+        run: |
+          node --check website/learning.js
+          npm --prefix site-app test
+          npm --prefix site-app run build
+          test -f site-app-dist/client/index.html
+          test -f site-app-dist/server/index.js
+          test -f site-app-dist/.openai/drizzle/0000_fearless_stone_men.sql
       - uses: actions/upload-artifact@v4
         with:
           name: chinese-learning-site
-          path: site-dist/
+          path: site-app-dist/
           retention-days: 30

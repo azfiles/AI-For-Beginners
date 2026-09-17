@@ -7,12 +7,13 @@ flowchart TD
   A[课程与中文翻译] --> B[website/build.py]
   C[Notebook 状态 JSON] --> B
   D[JupyterLite 内容] --> B
-  B --> E[site-dist 静态站点]
-  E --> F[GitHub Actions 构建产物]
-  F --> G[ChatGPT Site]
+  B --> E[site-dist 课程静态资源]
+  E --> F[site-app Worker 与 D1]
+  F --> G[GitHub Actions 构建产物]
+  G --> H[ChatGPT Site]
 ```
 
-`site-dist/` 是生成产物，不是手工维护的源目录。课程页面由中文 Markdown、Notebook 阅读视图、本地图片和 KaTeX 资源组合生成。部署时使用 GitHub Action 的 `chinese-learning-site` 产物同步到既有 Site 项目。
+`site-dist/` 是课程静态资源生成产物，不是手工维护的源目录。`site-app/` 将这些资源与用户级学习 API、D1 迁移组合为可部署 Worker；GitHub Action 的 `chinese-learning-site` 产物包含 `client/`、`server/` 与数据库迁移，可同步到既有 Site 项目。
 
 ## 两类 Notebook 运行路径
 
@@ -31,9 +32,9 @@ flowchart TD
 
 ## 个人学习状态
 
-课程页加载 `website/learning.js` 和 `website/learning.css`。笔记与完成状态使用版本化的 `localStorage` 记录，包含页面路径、所选原文、锚点、用户笔记和时间；导入时进行字段与站内路径校验，显示用户内容时使用文本节点，避免把备份内容当作 HTML 执行。
+课程页加载 `website/learning.js` 和 `website/learning.css`。生产 Site 的 `site-app/worker/index.js` 从平台注入的 `oai-authenticated-user-id` 读取稳定用户身份，并通过 D1 保存笔记和课程完成状态；所有查询、更新和删除都在服务端附加用户 ID 条件，客户端不能指定数据所有者。
 
-这是无账号、无后端的浏览器本地能力：站点服务器不接收个人学习数据，跨浏览器或跨设备迁移依赖 JSON 导出/导入。课程总数由构建器写入页面数据属性，进度只统计课程页面。
+`site-app/drizzle/` 保存不可变数据库迁移，`site-app/db/schema.ts` 是对应结构定义。旧版 `localStorage` 只作为待同步队列和临时故障回退：首次成功连接会把本地记录合并到当前账号，成功后清除本地副本。导入内容经过字段、长度和站内路径校验，显示用户内容时使用文本节点。JSON 导入/导出继续作为可携带备份。
 
 ## 状态模型
 
