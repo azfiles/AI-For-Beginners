@@ -1,8 +1,5 @@
 name: Chinese curriculum execution audit
 on:
-  push:
-    branches: [main, codex/gan-compatibility, codex/symbolic-browser]
-    paths: ['tools/validate_learning.py', 'site/**', '!site/*.md', 'lessons/**', 'examples/**', '.github/workflows/chinese-learning.yml']
   workflow_dispatch:
 permissions:
   contents: read

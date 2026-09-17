@@ -1,7 +1,5 @@
 name: Local notebook runtime
 on:
-  push:
-    paths: ['runtime/**', '.github/workflows/runtime.yml', 'site/requirements-*.txt']
   workflow_dispatch:
 permissions:
   contents: read

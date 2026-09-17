@@ -1,6 +1,9 @@
 name: Autoencoders all-cell smoke test
 on:
   push:
+    branches: [main]
+    paths: ['lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb', '.github/workflows/autoencoders-smoke.yml']
+  pull_request:
     paths: ['lessons/4-ComputerVision/09-Autoencoders/AutoencodersTF.ipynb', '.github/workflows/autoencoders-smoke.yml']
   workflow_dispatch:
 permissions:

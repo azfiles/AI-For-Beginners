@@ -3,22 +3,12 @@ on:
   workflow_run:
     workflows: ['Chinese curriculum execution audit']
     types: [completed]
-  workflow_dispatch:
-    inputs:
-      run_id:
-        description: 'Audit run ID; blank selects the latest run'
-        required: false
-  push:
-    branches: [main]
-    paths: ['.github/workflows/learning-report.yml']
 permissions:
   actions: read
   contents: read
 jobs:
   report:
-    # Superseded audits are cancelled before producing a complete report.
-    # Do not misreport missing cancellation artifacts as a curriculum failure.
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion != 'cancelled'
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -26,7 +16,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          REQUESTED_RUN: ${{ inputs.run_id || github.event.workflow_run.id }}
+          REQUESTED_RUN: ${{ github.event.workflow_run.id }}
         run: |
           audit_run="$REQUESTED_RUN"
           if [ -z "$audit_run" ]; then

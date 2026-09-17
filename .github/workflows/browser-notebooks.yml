@@ -1,6 +1,9 @@
 name: Browser notebook execution
 on:
   push:
+    branches: [main]
+    paths: ['website/**', '.github/workflows/browser-notebooks.yml', 'tools/test_browser_notebooks.py', 'lessons/2-Symbolic/**', 'lessons/3-NeuralNetworks/**', 'lessons/6-Other/21-GeneticAlgorithms/**']
+  pull_request:
     paths: ['website/**', '.github/workflows/browser-notebooks.yml', 'tools/test_browser_notebooks.py', 'lessons/2-Symbolic/**', 'lessons/3-NeuralNetworks/**', 'lessons/6-Other/21-GeneticAlgorithms/**']
   workflow_dispatch:
 permissions:

@@ -1,6 +1,9 @@
 name: Symbolic notebook execution
 on:
   push:
+    branches: [main]
+    paths: ['lessons/2-Symbolic/**', '.github/workflows/symbolic-notebooks.yml']
+  pull_request:
     paths: ['lessons/2-Symbolic/**', '.github/workflows/symbolic-notebooks.yml']
   workflow_dispatch:
 permissions:

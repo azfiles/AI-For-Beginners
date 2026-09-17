@@ -1,7 +1,5 @@
 name: Resource notebook execution
 on:
-  push:
-    paths: ['tools/test_resource_notebooks.py', '.github/workflows/resource-notebooks.yml', 'lessons/X-Extras/X1-MultiModal/Clip.ipynb', 'lessons/5-NLP/19-NER/**', 'lessons/4-ComputerVision/12-Segmentation/lab/**']
   workflow_dispatch:
 permissions:
   contents: read

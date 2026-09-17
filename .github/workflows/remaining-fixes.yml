@@ -1,7 +1,5 @@
 name: Verify remaining notebook compatibility fixes
 on:
-  push:
-    paths: ['.github/workflows/remaining-fixes.yml', 'lessons/5-NLP/14-Embeddings/EmbeddingsTF.ipynb', 'lessons/6-Other/22-DeepRL/notebook.ipynb']
   workflow_dispatch:
 permissions:
   contents: read

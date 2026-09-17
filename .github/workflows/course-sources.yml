@@ -1,7 +1,5 @@
 name: Export course development sources
 on:
-  push:
-    paths: ['.github/workflows/course-sources.yml']
   workflow_dispatch:
 permissions:
   contents: read

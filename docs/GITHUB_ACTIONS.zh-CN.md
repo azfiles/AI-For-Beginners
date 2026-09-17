@@ -19,6 +19,18 @@
 
 工作流文件名可能继续按历史用途保留；以其中的 `name:` 和实际步骤为准。仓库首页只展示最直接影响学习者的构建、浏览器运行和安全状态。
 
+## 触发策略
+
+默认分层如下：
+
+- PR/受影响目录自动运行：中文 Site 构建、浏览器 Notebook、Autoencoders/GAN/NLP/Symbolic 等短测，以及 CodeQL；
+- 仅手动运行：原始数据下载、资源 Notebook、全量课程审计、长 Notebook 兼容性、DeepRL/其他高耗时修复复验、本机运行时和源码导出；
+- 审计报告：只在手动启动的 `Chinese curriculum execution audit` 完成后由 `workflow_run` 自动读取；
+- Scorecard：只在 `main` 有 push 时运行，不设 schedule；
+- Dependabot：由 GitHub 自身机制管理，不属于 Notebook Actions。
+
+这样普通 PR 只承担快速合并所需的反馈；需要大量下载、长时间训练或全量覆盖时，在 Actions 页面手动启动对应任务即可。
+
 ## 如何解读失败
 
 - Site 构建失败：不能发布本次站点版本，应先修复页面、资源或契约问题。

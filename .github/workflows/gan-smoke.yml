@@ -1,6 +1,9 @@
 name: Generative models compatibility smoke test
 on:
   push:
+    branches: [main]
+    paths: ['lessons/4-ComputerVision/10-GANs/GANTF.ipynb', '.github/workflows/gan-smoke.yml', 'lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb']
+  pull_request:
     paths: ['lessons/4-ComputerVision/10-GANs/GANTF.ipynb', '.github/workflows/gan-smoke.yml', 'lessons/4-ComputerVision/10-GANs/StyleTransfer_Keras.ipynb']
   workflow_dispatch:
 permissions:

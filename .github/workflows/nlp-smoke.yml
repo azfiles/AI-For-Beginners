@@ -1,6 +1,9 @@
 name: NLP compatibility smoke test
 on:
   push:
+    branches: [main]
+    paths: ['lessons/5-NLP/**', '.github/workflows/nlp-smoke.yml']
+  pull_request:
     paths: ['lessons/5-NLP/**', '.github/workflows/nlp-smoke.yml']
   workflow_dispatch:
 permissions:

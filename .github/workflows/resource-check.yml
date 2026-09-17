@@ -1,7 +1,5 @@
 name: Check original dataset downloads
 on:
-  push:
-    paths: ['.github/workflows/resource-check.yml', 'site/course_data.py']
   workflow_dispatch:
 permissions:
   contents: read
